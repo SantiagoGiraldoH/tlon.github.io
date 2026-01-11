@@ -5,227 +5,252 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investigación & Desarrollo</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-dark: #05070a; /* Fondo más oscuro */
-            --bg-light: #141a25;
-            --text-main: #dceaf7;
-            --accent: #00ffea; /* Cian eléctrico más saturado */
-            --card-glass: rgba(20, 26, 37, 0.75); /* Color de tarjeta semitransparente */
+            /* --- PALETA DE COLORES SOLICITADA --- */
+            --bg-bone: #E6DBCB;      /* Blanco Hueso */
+            --text-ink: #071013;     /* Negro Tinta */
+            --dim-grey: #7B7263;     /* Gris Oscuro para detalles */
         }
 
         body {
-            font-family: 'Space Grotesk', sans-serif;
-            /* --- NUEVO FONDO TECH --- */
-            background-color: var(--bg-dark);
-            /* Creamos un gradiente profundo y una rejilla sutil */
-            background-image: 
-                radial-gradient(circle at 50% 0%, #1a2c42 0%, transparent 60%),
-                linear-gradient(rgba(0, 255, 234, 0.03) 1px, transparent 1px), 
-                linear-gradient(90deg, rgba(0, 255, 234, 0.03) 1px, transparent 1px);
-            background-size: 100% 100%, 40px 40px, 40px 40px;
-            background-position: center top;
-            background-attachment: fixed; /* El fondo se queda fijo al hacer scroll */
-            /* ------------------------ */
-            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace; /* Tipografía Monoespaciada */
+            background-color: var(--bg-bone);
+            color: var(--text-ink);
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        /* Header con efecto cristal */
+        /* --- HEADER --- */
         header {
-            padding: 1.5rem 2rem;
+            padding: 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(0, 255, 234, 0.1);
-            background: rgba(5, 7, 10, 0.8); /* Fondo semitransparente */
-            backdrop-filter: blur(15px); /* Efecto de cristal esmerilado */
+            border-bottom: 2px solid var(--text-ink); /* Línea sólida estilo plano */
+            background-color: var(--bg-bone);
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
-        .logo {
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(0, 255, 234, 0.3);
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        /* --- NUEVA ANIMACIÓN DE MENÚ TIPO "BOTÓN NEÓN" --- */
+        .logo-img {
+            height: 50px; /* Ajusta este tamaño según tu logo */
+            width: auto;
+            /* Si tu logo es negro, perfecto. Si no, esto fuerza que se vea como tinta: */
+            filter: grayscale(100%) contrast(120%); 
+        }
+
+        .site-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        /* --- NAVEGACIÓN MATEMÁTICA --- */
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
         nav a {
-            color: var(--text-main);
+            color: var(--dim-grey);
             text-decoration: none;
-            margin-left: 10px;
-            padding: 8px 16px;
-            border-radius: 20px; /* Forma de píldora */
-            transition: all 0.3s ease;
-            font-weight: 500;
+            font-weight: bold;
+            font-size: 1rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            /* Usamos display inline-block para que la animación no mueva el texto */
+            display: inline-block; 
+            width: 140px; /* Ancho fijo para evitar saltos durante la animación */
+            text-align: center;
         }
 
         nav a:hover {
-            background-color: var(--accent);
-            color: var(--bg-dark);
-            box-shadow: 0 0 15px rgba(0, 255, 234, 0.6); /* Resplandor intenso */
-            transform: translateY(-2px);
+            color: var(--text-ink);
         }
-        /* -------------------------------------------------- */
 
+        /* --- HERO --- */
         .hero {
-            text-align: center;
-            padding: 5rem 1rem;
-            max-width: 800px;
+            padding: 4rem 2rem;
+            max-width: 900px;
             margin: 0 auto;
-            /* Pequeña animación de entrada */
-            animation: fadeUp 1s ease-out;
-        }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            border-left: 1px solid var(--dim-grey); /* Línea guía a la izquierda */
+            margin-top: 2rem;
         }
 
         h1 {
-            font-size: 3.5rem;
-            margin-bottom: 0.5rem;
-            /* Gradiente de texto más agresivo */
-            background: linear-gradient(90deg, #ffffff, var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 5px rgba(0, 255, 234, 0.2));
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px dashed var(--dim-grey);
+            padding-bottom: 1rem;
+            display: inline-block;
         }
 
+        /* --- GRID --- */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2.5rem;
-            padding: 2rem;
+            gap: 0; /* Sin espacio, usaremos bordes para separar */
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 3rem auto;
+            border: 2px solid var(--text-ink); /* Marco exterior grueso */
         }
 
-        /* --- NUEVO ESTILO DE TARJETA GLASSMORPHIC --- */
         .card {
-            background-color: var(--card-glass); /* Semitransparente */
-            backdrop-filter: blur(10px); /* Efecto cristal */
-            border-radius: 16px;
+            background-color: transparent;
             padding: 2rem;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Animación con rebote suave */
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-right: 1px solid var(--text-ink);
+            border-bottom: 1px solid var(--text-ink);
+            transition: background-color 0.3s ease;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Efecto de luz al pasar el mouse sobre la tarjeta */
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(135deg, rgba(0,255,234,0.15) 0%, transparent 50%);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            z-index: -1;
         }
 
         .card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: var(--accent);
-            box-shadow: 0 10px 30px -10px rgba(0, 255, 234, 0.3);
-        }
-        .card:hover::before {
-            opacity: 1;
-        }
-        /* --------------------------------------------- */
-
-        .card h3 {
-            color: #fff;
-            margin-top: 0.5rem;
-            font-size: 1.4rem;
+            background-color: rgba(123, 114, 99, 0.1); /* Sutil oscurecimiento al pasar mouse */
         }
 
         .tag {
+            font-size: 0.7rem;
+            color: var(--bg-bone);
+            background-color: var(--dim-grey);
+            padding: 2px 6px;
             display: inline-block;
-            background: rgba(0, 255, 234, 0.15);
-            color: var(--accent);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            margin-bottom: 1rem;
         }
 
+        .card h3 {
+            margin-top: 0;
+            text-transform: uppercase;
+            text-decoration: underline;
+        }
+
+        /* --- PLOTLY OVERRIDE --- */
+        /* Ajustes para que la gráfica encaje en el tema "papel" */
         #myGraph {
             width: 100%;
             height: 300px;
-            border-radius: 8px;
-            overflow: hidden;
-            /* Hacemos la gráfica un poco más transparente para que se integre */
-            opacity: 0.9; 
-            transition: opacity 0.3s;
+            border: 1px solid var(--dim-grey);
+            margin-top: 1rem;
+            opacity: 0.9;
         }
-        .card:hover #myGraph { opacity: 1; }
 
         footer {
             text-align: center;
-            padding: 3rem;
-            margin-top: 2rem;
-            border-top: 1px solid rgba(0, 255, 234, 0.1);
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.5);
+            padding: 2rem;
+            font-size: 0.8rem;
+            color: var(--dim-grey);
+            border-top: 2px solid var(--text-ink);
+            margin-top: 4rem;
         }
+
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">Synapse.Lab</div> <nav>
-            <a href="index.html">Inicio</a>
-            <a href="#">Investigación</a>
-            <a href="#">Data Sets</a>
+        <div class="brand-container">
+            <img src="logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+            <div class="site-title">LABORATORIO_MATEMÁTICO // v.1.0</div>
+        </div>
+        <nav>
+            <a href="#" class="hacker-link" data-value="INICIO">[ INICIO ]</a>
+            <a href="#" class="hacker-link" data-value="ARTÍCULOS">[ ARTÍCULOS ]</a>
+            <a href="#" class="hacker-link" data-value="DATA_SETS">[ DATA_SETS ]</a>
         </nav>
     </header>
 
     <div class="hero">
-        <h1>Nexus de Investigación</h1>
-        <p>Plataforma interactiva para la visualización de modelos complejos y avances de tesis.</p>
+        <h1>INVESTIGACIÓN && MODELOS</h1>
+        <p>
+            > Inicializando sistema de bitácora...<br>
+            > Cargando parámetros de simulación...<br>
+            > Estado: <strong>ONLINE</strong>
+        </p>
+        <br>
+        <p style="color: var(--dim-grey); font-size: 0.9rem;">
+            /* Este espacio está dedicado a la publicación de avances en modelado matemático
+            y análisis de datos. La estética busca reducir el ruido visual para
+            enfocarse en la estructura de la información. */
+        </p>
     </div>
 
     <main class="grid-container">
         
         <article class="card" onclick="window.location.href='articulo-modelo.html';">
-            <span class="tag">Visualización 3D</span>
-            <h3>Topología de Datos Dinámicos</h3>
-            <p>Exploración interactiva de superficies generadas mediante funciones trigonométricas complejas usando Plotly/WebGL.</p>
+            <span class="tag">FIG. 01</span>
+            <h3>Superficie Paramétrica</h3>
+            <p>Visualización de función f(x,y) utilizando renderizado WebGL sobre canvas.</p>
             <div id="myGraph"></div>
         </article>
 
-        <article class="card" onclick="alert('Enlace al artículo completo próximamente');">
-            <span class="tag">Tesis - Cap. 2</span>
-            <h3>Arquitectura del Sistema Predictivo</h3>
-            <p>Diagramas preliminares del flujo de datos y selección de algoritmos de machine learning para la fase de pruebas.</p>
+        <article class="card">
+            <span class="tag">DOC. REF_2024</span>
+            <h3>Metodología</h3>
+            <p>Definición de variables estocásticas y límites del sistema propuesto.</p>
         </article>
 
-        <article class="card" onclick="alert('Enlace a la reflexión próximamente');">
-            <span class="tag">Filosofía Tech</span>
-            <h3>El Código como Artefacto Estético</h3>
-            <p>Breve ensayo sobre cómo la visualización de datos trasciende la funcionalidad para convertirse en expresión.</p>
+        <article class="card">
+            <span class="tag">LOG_ENTRY</span>
+            <h3>Notas de Campo</h3>
+            <p>Observaciones preliminares sobre la convergencia de los algoritmos de prueba.</p>
+        </article>
+        
+        <article class="card">
+            <span class="tag">CONTACTO</span>
+            <h3>Colaboración</h3>
+            <p>Canales de comunicación abierta para revisión de pares.</p>
         </article>
 
     </main>
 
     <footer>
-        <p>© 2024 Synapse Lab. Investigación independiente.</p>
+        <p>SYSTEM.EXIT(0); // © 2024</p>
     </footer>
 
     <script>
-        // --- CÓDIGO DE LA GRÁFICA (Mismo de antes, solo ajustado el color) ---
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
+
+        document.querySelectorAll('.hacker-link').forEach(item => {
+            item.onmouseover = event => {
+                let iterations = 0;
+                const originalText = event.target.dataset.value; // El texto real (ej: INICIO)
+                
+                // Intervalo de animación
+                const interval = setInterval(() => {
+                    // Generamos el texto mezclado
+                    const newText = originalText.split("")
+                        .map((letter, index) => {
+                            if(index < iterations) {
+                                return originalText[index]; // Ya descifró esta letra
+                            }
+                            return letters[Math.floor(Math.random() * 26)]; // Letra random
+                        })
+                        .join("");
+                    
+                    // Mantenemos los corchetes estáticos y cambiamos lo de adentro
+                    event.target.innerText = `[ ${newText} ]`;
+                    
+                    // Condición de parada
+                    if(iterations >= originalText.length) { 
+                        clearInterval(interval);
+                    }
+                    
+                    iterations += 1 / 3; // Velocidad de la decodificación
+                }, 30); // Velocidad de frames (ms)
+            }
+        });
+
+        // --- GRÁFICA PLOTLY (Ajustada a estética Papel/Tinta) ---
         const zData = [];
         for (let x = 0; x < 50; x++) {
             let row = [];
@@ -235,23 +260,26 @@
             }
             zData.push(row);
         }
+        
         const data = [{
             z: zData,
             type: 'surface',
-            // Cambiamos la paleta de colores a una más "eléctrica"
-            colorscale: 'Electric' 
+            colorscale: 'Earth', // Colores tierra/sepia para encajar mejor
+            showscale: false     // Ocultamos la barra de colores para más limpieza
         }];
+
         const layout = {
             margin: {l: 0, r: 0, b: 0, t: 0},
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
             scene: {
-                // Ocultamos los ejes para un look más artístico
-                xaxis: {visible: false}, yaxis: {visible: false}, zaxis: {visible: false},
-                camera: { eye: {x: 1.5, y: 1.5, z: 1.5} } // Un ángulo inicial más dramático
+                xaxis: {visible: false},
+                yaxis: {visible: false},
+                zaxis: {visible: false},
+                camera: { eye: {x: 1.5, y: 1.5, z: 1.5} }
             }
         };
-        Plotly.newPlot('myGraph', data, layout, {displayModeBar: false, responsive: true});
+        Plotly.newPlot('myGraph', data, layout, {displayModeBar: false});
     </script>
 </body>
 </html>
