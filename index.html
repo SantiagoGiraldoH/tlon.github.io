@@ -3,72 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Sitio Web Personal</title>
+    <title>Investigación & Desarrollo</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: #1f2833;
+            --text-main: #c5c6c7;
+            --accent: #66fcf1; /* Cian Tecnológico */
+            --accent-dim: #45a29e;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            overflow-x: hidden;
         }
+
+        /* --- Header Animado --- */
         header {
-            background-color: #24292e;
-            color: #fff;
             padding: 2rem;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(102, 252, 241, 0.1);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        main {
-            padding: 2rem;
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            margin-left: 20px;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--accent);
+            transition: width 0.3s;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem;
             max-width: 800px;
             margin: 0 auto;
-            background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- Grid de Artículos --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+
+        /* Efecto Hover Tecnológico */
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(102, 252, 241, 0.2);
+        }
+
+        .card h3 {
+            color: var(--accent);
+            margin-top: 0;
+        }
+
+        .tag {
+            display: inline-block;
+            background: rgba(102, 252, 241, 0.1);
+            color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Contenedor para la gráfica */
+        #myGraph {
+            width: 100%;
+            height: 300px;
             border-radius: 8px;
-            margin-top: -20px;
+            overflow: hidden;
         }
-        h1 { margin: 0; }
-        .intro {
-            text-align: center;
-            padding: 2rem 0;
-        }
+
         footer {
             text-align: center;
-            padding: 1rem;
-            margin-top: 2rem;
-            font-size: 0.9rem;
-            color: #666;
+            padding: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Bienvenido a mi Web</h1>
-        <p>Construida paso a paso con GitHub Pages</p>
+        <div class="logo">Lab.Digital</div>
+        <nav>
+            <a href="#">Inicio</a>
+            <a href="#">Investigación</a>
+            <a href="#">Modelos</a>
+            <a href="#">Contacto</a>
+        </nav>
     </header>
 
-    <main>
-        <div class="intro">
-            <h2>¡Hola! 👋</h2>
-            <p>Esta es la primera versión de mi sitio web personal.</p>
-            <p>Actualmente estamos en la <strong>Fase 1</strong>: Estructura básica.</p>
-        </div>
-        
-        <hr>
+    <div class="hero">
+        <h1>Bitácora de Investigación</h1>
+        <p>Explorando la intersección entre datos, modelos y tecnología.</p>
+    </div>
 
-        <h3>Mis Objetivos</h3>
-        <ul>
-            <li>Aprender HTML y CSS.</li>
-            <li>Documentar mis proyectos.</li>
-            <li>Mejorar este sitio poco a poco.</li>
-        </ul>
+    <main class="grid-container">
+        
+        <article class="card">
+            <span class="tag">Modelo Matemático</span>
+            <h3>Análisis de Datos en Tiempo Real</h3>
+            <p>Ejemplo de integración de Plotly.js para visualización científica interactiva directamente en el navegador.</p>
+            <div id="myGraph"></div>
+        </article>
+
+        <article class="card">
+            <span class="tag">Tesis - Avance 1</span>
+            <h3>Metodología del Proyecto</h3>
+            <p>Definición de variables y estructura preliminar del sistema. El objetivo es minimizar el error en...</p>
+        </article>
+
+        <article class="card">
+            <span class="tag">Reflexión</span>
+            <h3>Tecnología y Arte</h3>
+            <p>¿Cómo la visualización de datos puede convertirse en una forma de expresión estética?</p>
+        </article>
+
     </main>
 
     <footer>
-        <p>Creado con la ayuda de Gemini</p>
+        &copy; 2024 - Desarrollado paso a paso.
     </footer>
 
+    <script>
+        // --- CÓDIGO JAVASCRIPT PARA LA GRÁFICA ---
+        // Esto crea una gráfica 3D interactiva
+        
+        const zData = [];
+        for (let x = 0; x < 50; x++) {
+            let row = [];
+            for (let y = 0; y < 50; y++) {
+                // Una función matemática simple para generar una superficie
+                let r = Math.sqrt(x*x + y*y);
+                row.push(Math.sin(r/5) * 10); 
+            }
+            zData.push(row);
+        }
+
+        const data = [{
+            z: zData,
+            type: 'surface',
+            colorscale: 'Viridis'
+        }];
+
+        const layout = {
+            margin: {l: 0, r: 0, b: 0, t: 0},
+            paper_bgcolor: 'rgba(0,0,0,0)', // Fondo transparente para integrarse
+            scene: {
+                xaxis: {visible: false},
+                yaxis: {visible: false},
+                zaxis: {visible: false}
+            }
+        };
+
+        // Renderizar la gráfica en el div con id "myGraph"
+        Plotly.newPlot('myGraph', data, layout, {displayModeBar: false});
+    </script>
 </body>
 </html>
