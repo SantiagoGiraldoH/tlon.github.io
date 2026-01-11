@@ -3,37 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investigación & Desarrollo</title>
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <title>Tlön</title>
     
     <style>
         :root {
-            /* --- PALETA DE COLORES SOLICITADA --- */
             --bg-bone: #E6DBCB;      /* Blanco Hueso */
             --text-ink: #071013;     /* Negro Tinta */
-            --dim-grey: #7B7263;     /* Gris Oscuro para detalles */
+            --dim-grey: #7B7263;     /* Gris Oscuro */
         }
 
         body {
-            font-family: 'Courier New', Courier, monospace; /* Tipografía Monoespaciada */
+            font-family: 'Courier New', Courier, monospace;
             background-color: var(--bg-bone);
             color: var(--text-ink);
             margin: 0;
             padding: 0;
             line-height: 1.6;
+            overflow: hidden; /* Evitamos scrollbars por el canvas 3D */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* --- HEADER --- */
         header {
-            padding: 2rem;
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid var(--text-ink); /* Línea sólida estilo plano */
-            background-color: var(--bg-bone);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background-color: var(--bg-bone); 
+            position: relative;
+            z-index: 100; /* Por encima del 3D */
         }
 
         .brand-container {
@@ -43,20 +43,20 @@
         }
 
         .logo-img {
-            height: 50px; /* Ajusta este tamaño según tu logo */
+            height: 60px; /* Tamaño solicitado */
             width: auto;
-            /* Si tu logo es negro, perfecto. Si no, esto fuerza que se vea como tinta: */
             filter: grayscale(100%) contrast(120%); 
         }
 
         .site-title {
-            font-weight: bold;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: -1px;
+            font-weight: normal;
+            font-size: 1.4rem; /* Un poco más grande para 'Tlön' */
+            text-transform: none;
+            letter-spacing: 2px;
+            color: var(--text-ink);
         }
 
-        /* --- NAVEGACIÓN MATEMÁTICA --- */
+        /* --- NAVEGACIÓN --- */
         nav {
             display: flex;
             gap: 20px;
@@ -66,12 +66,11 @@
             color: var(--dim-grey);
             text-decoration: none;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
             cursor: pointer;
-            /* Usamos display inline-block para que la animación no mueva el texto */
             display: inline-block; 
-            width: 140px; /* Ancho fijo para evitar saltos durante la animación */
+            min-width: 100px;
             text-align: center;
         }
 
@@ -79,207 +78,274 @@
             color: var(--text-ink);
         }
 
-        /* --- HERO --- */
-        .hero {
-            padding: 4rem 2rem;
-            max-width: 900px;
-            margin: 0 auto;
-            border-left: 1px solid var(--dim-grey); /* Línea guía a la izquierda */
-            margin-top: 2rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px dashed var(--dim-grey);
-            padding-bottom: 1rem;
-            display: inline-block;
-        }
-
-        /* --- GRID --- */
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 0; /* Sin espacio, usaremos bordes para separar */
-            max-width: 1200px;
-            margin: 3rem auto;
-            border: 2px solid var(--text-ink); /* Marco exterior grueso */
-        }
-
-        .card {
-            background-color: transparent;
-            padding: 2rem;
-            border-right: 1px solid var(--text-ink);
-            border-bottom: 1px solid var(--text-ink);
-            transition: background-color 0.3s ease;
-            cursor: pointer;
-        }
-
-        .card:hover {
-            background-color: rgba(123, 114, 99, 0.1); /* Sutil oscurecimiento al pasar mouse */
-        }
-
-        .tag {
-            font-size: 0.7rem;
-            color: var(--bg-bone);
-            background-color: var(--dim-grey);
-            padding: 2px 6px;
-            display: inline-block;
-            margin-bottom: 1rem;
-        }
-
-        .card h3 {
-            margin-top: 0;
-            text-transform: uppercase;
-            text-decoration: underline;
-        }
-
-        /* --- PLOTLY OVERRIDE --- */
-        /* Ajustes para que la gráfica encaje en el tema "papel" */
-        #myGraph {
+        /* --- CONTENEDOR 3D --- */
+        #canvas-container {
+            flex-grow: 1;
             width: 100%;
-            height: 300px;
-            border: 1px solid var(--dim-grey);
-            margin-top: 1rem;
-            opacity: 0.9;
+            position: relative;
+            outline: none;
         }
 
-        footer {
+        /* --- OVERLAY DEL TÍTULO DEL ARTÍCULO --- */
+        #article-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none; /* Permite hacer clic "a través" del texto al objeto 3D */
             text-align: center;
-            padding: 2rem;
+            z-index: 50;
+            width: 80%;
+        }
+
+        #article-label h2 {
+            font-size: 1.5rem;
+            background-color: var(--bg-bone); /* Fondo para tapar las líneas traseras */
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--text-ink);
+            display: inline-block;
+            box-shadow: 5px 5px 0px rgba(7, 16, 19, 0.1);
+            margin: 0;
+            opacity: 0; /* Invisible por defecto */
+            transition: opacity 0.3s ease;
+        }
+
+        #article-label p {
             font-size: 0.8rem;
             color: var(--dim-grey);
-            border-top: 2px solid var(--text-ink);
-            margin-top: 4rem;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Clase para mostrar el label */
+        .visible {
+            opacity: 1 !important;
+        }
+
+        /* Instrucciones flotantes */
+        .instructions {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--dim-grey);
+            pointer-events: none;
         }
 
     </style>
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
 </head>
 <body>
 
     <header>
         <div class="brand-container">
             <img src="logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
-            <div class="site-title">LABORATORIO_MATEMÁTICO // v.1.0</div>
+            <div class="site-title">Tlön</div>
         </div>
         <nav>
             <a href="#" class="hacker-link" data-value="INICIO">[ INICIO ]</a>
             <a href="#" class="hacker-link" data-value="ARTÍCULOS">[ ARTÍCULOS ]</a>
-            <a href="#" class="hacker-link" data-value="DATA_SETS">[ DATA_SETS ]</a>
+            <a href="#" class="hacker-link" data-value="PROYECTOS">[ PROYECTOS ]</a>
         </nav>
     </header>
 
-    <div class="hero">
-        <h1>INVESTIGACIÓN && MODELOS</h1>
-        <p>
-            > Inicializando sistema de bitácora...<br>
-            > Cargando parámetros de simulación...<br>
-            > Estado: <strong>ONLINE</strong>
-        </p>
-        <br>
-        <p style="color: var(--dim-grey); font-size: 0.9rem;">
-            /* Este espacio está dedicado a la publicación de avances en modelado matemático
-            y análisis de datos. La estética busca reducir el ruido visual para
-            enfocarse en la estructura de la información. */
-        </p>
+    <div id="canvas-container">
+        <div id="article-label">
+            <h2 id="label-title">TITULO_ARTICULO</h2>
+            <p id="label-desc">Click para acceder</p>
+        </div>
+
+        <div class="instructions">
+            [ ARRASTRA PARA ROTAR - SELECCIONA UNA CARA PARA LEER ]
+        </div>
     </div>
-
-    <main class="grid-container">
-        
-        <article class="card" onclick="window.location.href='articulo-modelo.html';">
-            <span class="tag">FIG. 01</span>
-            <h3>Superficie Paramétrica</h3>
-            <p>Visualización de función f(x,y) utilizando renderizado WebGL sobre canvas.</p>
-            <div id="myGraph"></div>
-        </article>
-
-        <article class="card">
-            <span class="tag">DOC. REF_2024</span>
-            <h3>Metodología</h3>
-            <p>Definición de variables estocásticas y límites del sistema propuesto.</p>
-        </article>
-
-        <article class="card">
-            <span class="tag">LOG_ENTRY</span>
-            <h3>Notas de Campo</h3>
-            <p>Observaciones preliminares sobre la convergencia de los algoritmos de prueba.</p>
-        </article>
-        
-        <article class="card">
-            <span class="tag">CONTACTO</span>
-            <h3>Colaboración</h3>
-            <p>Canales de comunicación abierta para revisión de pares.</p>
-        </article>
-
-    </main>
-
-    <footer>
-        <p>SYSTEM.EXIT(0); // © 2024</p>
-    </footer>
 
     <script>
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
-
         document.querySelectorAll('.hacker-link').forEach(item => {
             item.onmouseover = event => {
                 let iterations = 0;
-                const originalText = event.target.dataset.value; // El texto real (ej: INICIO)
-                
-                // Intervalo de animación
+                const originalText = event.target.dataset.value;
                 const interval = setInterval(() => {
-                    // Generamos el texto mezclado
                     const newText = originalText.split("")
                         .map((letter, index) => {
-                            if(index < iterations) {
-                                return originalText[index]; // Ya descifró esta letra
-                            }
-                            return letters[Math.floor(Math.random() * 26)]; // Letra random
+                            if(index < iterations) return originalText[index];
+                            return letters[Math.floor(Math.random() * 26)];
                         })
                         .join("");
-                    
-                    // Mantenemos los corchetes estáticos y cambiamos lo de adentro
                     event.target.innerText = `[ ${newText} ]`;
-                    
-                    // Condición de parada
-                    if(iterations >= originalText.length) { 
-                        clearInterval(interval);
-                    }
-                    
-                    iterations += 1 / 3; // Velocidad de la decodificación
-                }, 30); // Velocidad de frames (ms)
+                    if(iterations >= originalText.length) clearInterval(interval);
+                    iterations += 1 / 3;
+                }, 30);
             }
         });
+    </script>
 
-        // --- GRÁFICA PLOTLY (Ajustada a estética Papel/Tinta) ---
-        const zData = [];
-        for (let x = 0; x < 50; x++) {
-            let row = [];
-            for (let y = 0; y < 50; y++) {
-                let r = Math.sqrt(x*x + y*y);
-                row.push(Math.sin(r/5) * 10); 
-            }
-            zData.push(row);
-        }
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // 1. CONFIGURACIÓN DE ESCENA
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        // Fondo transparente para ver el color hueso del CSS
+        scene.background = null; 
+
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+        camera.position.z = 8; // Distancia de la cámara
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // 2. CONTROLES (Para mover el dodecaedro)
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Movimiento suave
+        controls.dampingFactor = 0.05;
+        controls.enableZoom = false;   // Desactivar zoom para no romper el diseño
+        controls.autoRotate = true;    // Rotación automática suave
+        controls.autoRotateSpeed = 2.0;
+
+        // 3. EL DODECAEDRO (GEOMETRÍA)
+        const radius = 2.2;
+        const geometry = new THREE.DodecahedronGeometry(radius, 0); // 0 = sin detalle extra (12 caras)
+
+        // 3.1 MATERIAL "ALAMBRE" (TINTA NEGRA)
+        const edgesGeometry = new THREE.EdgesGeometry(geometry);
+        const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x071013, linewidth: 2 });
+        const wireframe = new THREE.LineSegments(edgesGeometry, edgesMaterial);
         
-        const data = [{
-            z: zData,
-            type: 'surface',
-            colorscale: 'Earth', // Colores tierra/sepia para encajar mejor
-            showscale: false     // Ocultamos la barra de colores para más limpieza
-        }];
+        // 3.2 MATERIAL "CARAS" (INVISIBLE PERO DETECTABLE POR EL RAYCASTER)
+        // Usamos un material transparente para detectar el mouse
+        const faceMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xE6DBCB, 
+            opacity: 0, 
+            transparent: true,
+            side: THREE.DoubleSide
+        });
+        const dodecahedron = new THREE.Mesh(geometry, faceMaterial);
+        
+        // Agrupamos alambre y caras para que giren juntos
+        const group = new THREE.Group();
+        group.add(dodecahedron);
+        group.add(wireframe);
+        scene.add(group);
 
-        const layout = {
-            margin: {l: 0, r: 0, b: 0, t: 0},
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            scene: {
-                xaxis: {visible: false},
-                yaxis: {visible: false},
-                zaxis: {visible: false},
-                camera: { eye: {x: 1.5, y: 1.5, z: 1.5} }
+        // 4. DATOS DE LOS ARTÍCULOS (MAPEO DE CARAS)
+        // Un dodecaedro tiene 12 caras. Mapeamos índices a títulos.
+        const articles = [
+            { title: "ORBIS TERTIUS", desc: "La entrada de la enciclopedia" },
+            { title: "GEOMETRÍA FRACTAL", desc: "Modelado recursivo en la naturaleza" },
+            { title: "REDES NEURONALES", desc: "Topología de la decisión" },
+            { title: "EL ALEPH", desc: "El punto que contiene todos los puntos" },
+            { title: "DATA MINING", desc: "Extracción de patrones ocultos" },
+            { title: "HÖLDERLIN", desc: "Análisis semántico automatizado" },
+            { title: "CAOS DETERMINISTA", desc: "Sensibilidad a condiciones iniciales" },
+            { title: "LÓGICA DIFUSA", desc: "Más allá del binario" },
+            { title: "TEORÍA DE GRAFOS", desc: "Conectividad y flujo" },
+            { title: "SIMULACIÓN", desc: "El mapa y el territorio" },
+            { title: "ENTROPÍA", desc: "La flecha del tiempo" },
+            { title: "SINTAXIS", desc: "Estructura vs Contenido" }
+        ];
+
+        // 5. INTERACCIÓN (RAYCASTER)
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const labelTitle = document.getElementById('label-title');
+        const labelDesc = document.getElementById('label-desc');
+        
+        // Función para manejar el movimiento del mouse
+        function onMouseMove(event) {
+            // Calcular posición del mouse normalizada (-1 a +1)
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            
+            // Si el usuario mueve el mouse, pausamos la rotación automática para que pueda apuntar
+            controls.autoRotate = false;
+        }
+
+        function onClick(event) {
+            // Si hay una intersección, navegamos
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(dodecahedron);
+            
+            if (intersects.length > 0) {
+                // AQUÍ ES DONDE NAVEGAS A LA PÁGINA REAL
+                // Por ahora usamos una alerta, luego será: window.location.href = 'articulo.html';
+                const faceIndex = intersects[0].faceIndex;
+                // El índice de cara en Three.js va por triángulos, un pentágono son varios triángulos.
+                // Simplificamos usando el índice general dividido para aproximar (o mapeamos modulo 12)
+                alert("Navegando a: " + labelTitle.innerText);
+                // window.location.href = 'articulo-modelo.html';
             }
-        };
-        Plotly.newPlot('myGraph', data, layout, {displayModeBar: false});
+        }
+
+        // Recuperar rotación automática si el mouse sale
+        document.addEventListener('mouseleave', () => { controls.autoRotate = true; });
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('click', onClick);
+
+        // 6. ANIMACIÓN
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            // Raycaster Logic
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(dodecahedron);
+
+            if (intersects.length > 0) {
+                // Hemos tocado una cara
+                document.body.style.cursor = 'pointer';
+                
+                // Determinamos "qué" cara es basándonos en el índice geométrico
+                // Un dodecaedro tiene caras compuestas, usamos faceIndex para mapear a nuestro array de 12
+                // Math.floor(intersects[0].faceIndex / 3) es una aproximación común para low-poly
+                const index = Math.floor(intersects[0].faceIndex / 3) % articles.length;
+                const data = articles[index];
+
+                labelTitle.innerText = data.title;
+                labelDesc.innerText = data.desc;
+                
+                labelTitle.classList.add('visible');
+                labelDesc.classList.add('visible');
+                
+                // Efecto visual: Hacemos que las líneas vibren o cambien de color (opcional)
+                wireframe.material.color.setHex(0x7B7263); // Gris Dim al tocar
+            } else {
+                document.body.style.cursor = 'default';
+                labelTitle.classList.remove('visible');
+                labelDesc.classList.remove('visible');
+                wireframe.material.color.setHex(0x071013); // Volver a Negro Tinta
+                
+                // Si nadie toca nada, vuelve a rotar suavemente
+                controls.autoRotate = true;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Manejo de redimensionado de ventana
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        animate();
     </script>
 </body>
 </html>
