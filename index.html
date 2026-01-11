@@ -9,30 +9,41 @@
     
     <style>
         :root {
-            --bg-color: #0b0c10;
-            --card-bg: #1f2833;
-            --text-main: #c5c6c7;
-            --accent: #66fcf1; /* Cian Tecnológico */
-            --accent-dim: #45a29e;
+            --bg-dark: #05070a; /* Fondo más oscuro */
+            --bg-light: #141a25;
+            --text-main: #dceaf7;
+            --accent: #00ffea; /* Cian eléctrico más saturado */
+            --card-glass: rgba(20, 26, 37, 0.75); /* Color de tarjeta semitransparente */
         }
 
         body {
             font-family: 'Space Grotesk', sans-serif;
-            background-color: var(--bg-color);
+            /* --- NUEVO FONDO TECH --- */
+            background-color: var(--bg-dark);
+            /* Creamos un gradiente profundo y una rejilla sutil */
+            background-image: 
+                radial-gradient(circle at 50% 0%, #1a2c42 0%, transparent 60%),
+                linear-gradient(rgba(0, 255, 234, 0.03) 1px, transparent 1px), 
+                linear-gradient(90deg, rgba(0, 255, 234, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            background-position: center top;
+            background-attachment: fixed; /* El fondo se queda fijo al hacer scroll */
+            /* ------------------------ */
             color: var(--text-main);
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
 
-        /* --- Header Animado --- */
+        /* Header con efecto cristal */
         header {
-            padding: 2rem;
+            padding: 1.5rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(102, 252, 241, 0.1);
-            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 234, 0.1);
+            background: rgba(5, 7, 10, 0.8); /* Fondo semitransparente */
+            backdrop-filter: blur(15px); /* Efecto de cristal esmerilado */
             position: sticky;
             top: 0;
             z-index: 100;
@@ -44,185 +55,203 @@
             color: var(--accent);
             text-transform: uppercase;
             letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 234, 0.3);
         }
 
+        /* --- NUEVA ANIMACIÓN DE MENÚ TIPO "BOTÓN NEÓN" --- */
         nav a {
             color: var(--text-main);
             text-decoration: none;
-            margin-left: 20px;
-            transition: color 0.3s ease;
-            position: relative;
+            margin-left: 10px;
+            padding: 8px 16px;
+            border-radius: 20px; /* Forma de píldora */
+            transition: all 0.3s ease;
+            font-weight: 500;
         }
 
         nav a:hover {
-            color: var(--accent);
-        }
-
-        nav a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -5px;
-            left: 0;
             background-color: var(--accent);
-            transition: width 0.3s;
+            color: var(--bg-dark);
+            box-shadow: 0 0 15px rgba(0, 255, 234, 0.6); /* Resplandor intenso */
+            transform: translateY(-2px);
         }
+        /* -------------------------------------------------- */
 
-        nav a:hover::after {
-            width: 100%;
-        }
-
-        /* --- Hero Section --- */
         .hero {
             text-align: center;
-            padding: 4rem 1rem;
+            padding: 5rem 1rem;
             max-width: 800px;
             margin: 0 auto;
+            /* Pequeña animación de entrada */
+            animation: fadeUp 1s ease-out;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             margin-bottom: 0.5rem;
-            background: linear-gradient(90deg, #fff, var(--accent));
+            /* Gradiente de texto más agresivo */
+            background: linear-gradient(90deg, #ffffff, var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 5px rgba(0, 255, 234, 0.2));
         }
 
-        /* --- Grid de Artículos --- */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            gap: 2.5rem;
             padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
         }
 
+        /* --- NUEVO ESTILO DE TARJETA GLASSMORPHIC --- */
         .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid transparent;
+            background-color: var(--card-glass); /* Semitransparente */
+            backdrop-filter: blur(10px); /* Efecto cristal */
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Animación con rebote suave */
+            border: 1px solid rgba(255, 255, 255, 0.05);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Efecto Hover Tecnológico */
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(102, 252, 241, 0.2);
+        /* Efecto de luz al pasar el mouse sobre la tarjeta */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(0,255,234,0.15) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
         }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px -10px rgba(0, 255, 234, 0.3);
+        }
+        .card:hover::before {
+            opacity: 1;
+        }
+        /* --------------------------------------------- */
 
         .card h3 {
-            color: var(--accent);
-            margin-top: 0;
+            color: #fff;
+            margin-top: 0.5rem;
+            font-size: 1.4rem;
         }
 
         .tag {
             display: inline-block;
-            background: rgba(102, 252, 241, 0.1);
+            background: rgba(0, 255, 234, 0.15);
             color: var(--accent);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            margin-bottom: 1rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
-        /* Contenedor para la gráfica */
         #myGraph {
             width: 100%;
             height: 300px;
             border-radius: 8px;
             overflow: hidden;
+            /* Hacemos la gráfica un poco más transparente para que se integre */
+            opacity: 0.9; 
+            transition: opacity 0.3s;
         }
+        .card:hover #myGraph { opacity: 1; }
 
         footer {
             text-align: center;
-            padding: 2rem;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            font-size: 0.8rem;
+            padding: 3rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(0, 255, 234, 0.1);
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.5);
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">Lab.Digital</div>
-        <nav>
-            <a href="#">Inicio</a>
+        <div class="logo">Synapse.Lab</div> <nav>
+            <a href="index.html">Inicio</a>
             <a href="#">Investigación</a>
-            <a href="#">Modelos</a>
-            <a href="#">Contacto</a>
+            <a href="#">Data Sets</a>
         </nav>
     </header>
 
     <div class="hero">
-        <h1>Bitácora de Investigación</h1>
-        <p>Explorando la intersección entre datos, modelos y tecnología.</p>
+        <h1>Nexus de Investigación</h1>
+        <p>Plataforma interactiva para la visualización de modelos complejos y avances de tesis.</p>
     </div>
 
     <main class="grid-container">
         
-        <article class="card">
-            <span class="tag">Modelo Matemático</span>
-            <h3>Análisis de Datos en Tiempo Real</h3>
-            <p>Ejemplo de integración de Plotly.js para visualización científica interactiva directamente en el navegador.</p>
+        <article class="card" onclick="window.location.href='articulo-modelo.html';">
+            <span class="tag">Visualización 3D</span>
+            <h3>Topología de Datos Dinámicos</h3>
+            <p>Exploración interactiva de superficies generadas mediante funciones trigonométricas complejas usando Plotly/WebGL.</p>
             <div id="myGraph"></div>
         </article>
 
-        <article class="card">
-            <span class="tag">Tesis - Avance 1</span>
-            <h3>Metodología del Proyecto</h3>
-            <p>Definición de variables y estructura preliminar del sistema. El objetivo es minimizar el error en...</p>
+        <article class="card" onclick="alert('Enlace al artículo completo próximamente');">
+            <span class="tag">Tesis - Cap. 2</span>
+            <h3>Arquitectura del Sistema Predictivo</h3>
+            <p>Diagramas preliminares del flujo de datos y selección de algoritmos de machine learning para la fase de pruebas.</p>
         </article>
 
-        <article class="card">
-            <span class="tag">Reflexión</span>
-            <h3>Tecnología y Arte</h3>
-            <p>¿Cómo la visualización de datos puede convertirse en una forma de expresión estética?</p>
+        <article class="card" onclick="alert('Enlace a la reflexión próximamente');">
+            <span class="tag">Filosofía Tech</span>
+            <h3>El Código como Artefacto Estético</h3>
+            <p>Breve ensayo sobre cómo la visualización de datos trasciende la funcionalidad para convertirse en expresión.</p>
         </article>
 
     </main>
 
     <footer>
-        &copy; 2024 - Desarrollado paso a paso.
+        <p>© 2024 Synapse Lab. Investigación independiente.</p>
     </footer>
 
     <script>
-        // --- CÓDIGO JAVASCRIPT PARA LA GRÁFICA ---
-        // Esto crea una gráfica 3D interactiva
-        
+        // --- CÓDIGO DE LA GRÁFICA (Mismo de antes, solo ajustado el color) ---
         const zData = [];
         for (let x = 0; x < 50; x++) {
             let row = [];
             for (let y = 0; y < 50; y++) {
-                // Una función matemática simple para generar una superficie
                 let r = Math.sqrt(x*x + y*y);
                 row.push(Math.sin(r/5) * 10); 
             }
             zData.push(row);
         }
-
         const data = [{
             z: zData,
             type: 'surface',
-            colorscale: 'Viridis'
+            // Cambiamos la paleta de colores a una más "eléctrica"
+            colorscale: 'Electric' 
         }];
-
         const layout = {
             margin: {l: 0, r: 0, b: 0, t: 0},
-            paper_bgcolor: 'rgba(0,0,0,0)', // Fondo transparente para integrarse
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
             scene: {
-                xaxis: {visible: false},
-                yaxis: {visible: false},
-                zaxis: {visible: false}
+                // Ocultamos los ejes para un look más artístico
+                xaxis: {visible: false}, yaxis: {visible: false}, zaxis: {visible: false},
+                camera: { eye: {x: 1.5, y: 1.5, z: 1.5} } // Un ángulo inicial más dramático
             }
         };
-
-        // Renderizar la gráfica en el div con id "myGraph"
-        Plotly.newPlot('myGraph', data, layout, {displayModeBar: false});
+        Plotly.newPlot('myGraph', data, layout, {displayModeBar: false, responsive: true});
     </script>
 </body>
 </html>
