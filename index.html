@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tlön</title>
+    <title>Tlön.da</title>
     
     <style>
         :root {
@@ -155,7 +155,7 @@
         </div>
         <nav>
             <a href="#" class="hacker-link" data-value="INICIO">[ INICIO ]</a>
-            <a href="#" class="hacker-link" data-value="ARTÍCULOS">[ ARTÍCULOS ]</a>
+            <a href="articulos.html" class="hacker-link" data-value="ARTÍCULOS">[ ARTÍCULOS ]</a>
             <a href="#" class="hacker-link" data-value="PROYECTOS">[ PROYECTOS ]</a>
         </nav>
     </header>
@@ -245,19 +245,31 @@
 
         // 4. DATOS DE LOS ARTÍCULOS (MAPEO DE CARAS)
         // Un dodecaedro tiene 12 caras. Mapeamos índices a títulos.
+        // 4. DATOS DE LOS ARTÍCULOS (MAPEO DE CARAS)
         const articles = [
-            { title: "ORBIS TERTIUS", desc: "La entrada de la enciclopedia" },
-            { title: "GEOMETRÍA FRACTAL", desc: "Modelado recursivo en la naturaleza" },
-            { title: "REDES NEURONALES", desc: "Topología de la decisión" },
-            { title: "EL ALEPH", desc: "El punto que contiene todos los puntos" },
-            { title: "DATA MINING", desc: "Extracción de patrones ocultos" },
-            { title: "HÖLDERLIN", desc: "Análisis semántico automatizado" },
-            { title: "CAOS DETERMINISTA", desc: "Sensibilidad a condiciones iniciales" },
-            { title: "LÓGICA DIFUSA", desc: "Más allá del binario" },
-            { title: "TEORÍA DE GRAFOS", desc: "Conectividad y flujo" },
-            { title: "SIMULACIÓN", desc: "El mapa y el territorio" },
-            { title: "ENTROPÍA", desc: "La flecha del tiempo" },
-            { title: "SINTAXIS", desc: "Estructura vs Contenido" }
+        // CARA 1: Tu nuevo artículo de Quarto
+            { 
+                title: "ANÁLISIS 3D", 
+                desc: "Prueba de renderizado con Quarto y Plotly", 
+                url: "post/prueba_grafica.html" 
+            },
+            
+            // CARA 2
+            { title: "GEOMETRÍA FRACTAL", desc: "Modelado recursivo", url: "#" },
+            
+            // CARA 3
+            { title: "REDES NEURONALES", desc: "Topología de la decisión", url: "#" },
+            
+            // ... Puedes seguir llenando los demás o dejarlos con url: "#"
+            { title: "EL ALEPH", desc: "El punto que contiene todos los puntos", url: "#" },
+            { title: "DATA MINING", desc: "Extracción de patrones ocultos", url: "#" },
+            { title: "HÖLDERLIN", desc: "Análisis semántico automatizado", url: "#" },
+            { title: "CAOS DETERMINISTA", desc: "Sensibilidad a condiciones iniciales", url: "#" },
+            { title: "LÓGICA DIFUSA", desc: "Más allá del binario", url: "#" },
+            { title: "TEORÍA DE GRAFOS", desc: "Conectividad y flujo", url: "#" },
+            { title: "SIMULACIÓN", desc: "El mapa y el territorio", url: "#" },
+            { title: "ENTROPÍA", desc: "La flecha del tiempo", url: "#" },
+            { title: "SINTAXIS", desc: "Estructura vs Contenido", url: "#" }
         ];
 
         // 5. INTERACCIÓN (RAYCASTER)
@@ -278,18 +290,23 @@
         }
 
         function onClick(event) {
-            // Si hay una intersección, navegamos
+        // Si hay una intersección, navegamos
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObject(dodecahedron);
             
             if (intersects.length > 0) {
-                // AQUÍ ES DONDE NAVEGAS A LA PÁGINA REAL
-                // Por ahora usamos una alerta, luego será: window.location.href = 'articulo.html';
-                const faceIndex = intersects[0].faceIndex;
-                // El índice de cara en Three.js va por triángulos, un pentágono son varios triángulos.
-                // Simplificamos usando el índice general dividido para aproximar (o mapeamos modulo 12)
-                alert("Navegando a: " + labelTitle.innerText);
-                // window.location.href = 'articulo-modelo.html';
+                // Calculamos qué artículo corresponde a la cara clicada
+                const index = Math.floor(intersects[0].faceIndex / 3) % articles.length;
+                const data = articles[index];
+
+                // LÓGICA DE NAVEGACIÓN
+                if (data.url && data.url !== "#") {
+                    // Si hay una URL real, vamos a ella
+                    window.location.href = data.url;
+                } else {
+                    // Si es un placeholder (#), mostramos mensaje
+                    alert("Artículo en redacción: " + data.title);
+                }
             }
         }
 

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tlön // Index</title>
+    
+    <style>
+        :root {
+            --bg-bone: #E6DBCB;      
+            --text-ink: #071013;     
+            --dim-grey: #7B7263;     
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-bone);
+            color: var(--text-ink);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        header {
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-bone);
+            /* Eliminamos bordes aquí también para máxima limpieza si lo deseas, 
+               o dejamos una muy sutil si prefieres separar la cabecera */
+            border-bottom: 1px solid rgba(123, 114, 99, 0.2); 
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-img {
+            height: 60px; 
+            width: auto;
+            filter: grayscale(100%) contrast(120%); 
+        }
+
+        .site-title {
+            font-weight: normal;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            color: var(--text-ink);
+        }
+
+        nav { display: flex; gap: 20px; }
+        
+        nav a {
+            color: var(--dim-grey);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        
+        nav a:hover { color: var(--text-ink); }
+        
+        /* Enlace activo: Solo cambio de color, SIN subrayado */
+        nav a.active {
+            color: var(--text-ink);
+            text-decoration: none; 
+        }
+
+        /* --- CONTENIDO PRINCIPAL --- */
+        main {
+            max-width: 1000px;
+            margin: 4rem auto; /* Margen superior para separar del header */
+            padding: 0 2rem;
+        }
+
+        /* --- BUSCADOR TIPO TERMINAL --- */
+        .search-box {
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            /* Alineación visual con la lista */
+            padding-left: 0; 
+        }
+        
+        .search-label {
+            color: var(--text-ink);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 400px; /* Limitamos el ancho para que no sea eterno */
+            padding: 5px;
+            background: transparent;
+            border: none;
+            border-bottom: 1px dashed var(--dim-grey); /* Línea punteada sutil */
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--text-ink);
+            outline: none;
+        }
+        
+        .search-input::placeholder { color: var(--dim-grey); opacity: 0.5; font-style: italic; }
+        .search-input:focus { border-bottom: 1px solid var(--text-ink); }
+
+        /* --- LISTA DE ARTÍCULOS --- */
+        .archive-list {
+            display: flex;
+            flex-direction: column;
+            border-top: 2px solid var(--text-ink); /* La única línea fuerte de separación */
+        }
+
+        .entry-row {
+            display: grid;
+            /* Columnas: Fecha | Título | Tags | Botón */
+            grid-template-columns: 120px 2fr 1fr 100px; 
+            gap: 1rem;
+            padding: 1.2rem 0;
+            border-bottom: 1px solid rgba(123, 114, 99, 0.3);
+            align-items: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .entry-row:hover {
+            background-color: rgba(123, 114, 99, 0.1);
+            padding-left: 10px;
+        }
+
+        .entry-date {
+            font-size: 0.8rem;
+            color: var(--dim-grey);
+            font-weight: bold;
+        }
+
+        .entry-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .entry-tags {
+            font-size: 0.75rem;
+            color: var(--dim-grey);
+        }
+        
+        .tag-pill {
+            border: 1px solid var(--dim-grey);
+            padding: 2px 6px;
+            margin-right: 5px;
+            border-radius: 2px;
+        }
+
+        .entry-action {
+            text-align: right;
+            font-weight: bold;
+            opacity: 0; 
+            transition: opacity 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .entry-row:hover .entry-action { opacity: 1; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .entry-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            .entry-action { opacity: 1; text-align: left; color: var(--dim-grey); }
+            .search-input { width: 100%; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-container">
+            <img src="logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+            <div class="site-title">Tlön</div>
+        </div>
+        <nav>
+            <a href="index.html">[ INICIO ]</a>
+            <a href="articulos.html" class="active">[ ARTÍCULOS ]</a>
+            <a href="#">[ PROYECTOS ]</a>
+        </nav>
+    </header>
+
+    <main>
+        
+        <div class="search-box">
+            <span class="search-label">> query_filter:</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="..." autocomplete="off">
+        </div>
+
+        <div class="archive-list" id="articleList">
+            
+            <div class="entry-row" onclick="window.location.href='articulo-detalle.html'">
+                <div class="entry-date">2024.05.12</div>
+                <div class="entry-title">Geometría Fractal en la Naturaleza</div>
+                <div class="entry-tags">
+                    <span class="tag-pill">MATEMÁTICAS</span>
+                    <span class="tag-pill">MODELOS</span>
+                </div>
+                <div class="entry-action">[ >>> ]</div>
+            </div>
+
+            <div class="entry-row" onclick="window.location.href='post/prueba_grafica.html'">
+                <div class="entry-date">2026.01.11</div>
+                <div class="entry-title">Geometría en quarto</div>
+                <div class="entry-tags">
+                    <span class="tag-pill">MATEMÁTICAS</span>
+                    <span class="tag-pill">MODELOS</span>
+                </div>
+                <div class="entry-action">[ >>> ]</div>
+            </div>
+
+            <div class="entry-row">
+                <div class="entry-date">2024.03.20</div>
+                <div class="entry-title">Topología de Redes Neuronales</div>
+                <div class="entry-tags">
+                    <span class="tag-pill">IA</span>
+                    <span class="tag-pill">TEORÍA</span>
+                </div>
+                <div class="entry-action">[ >>> ]</div>
+            </div>
+
+            <div class="entry-row">
+                <div class="entry-date">2024.01.15</div>
+                <div class="entry-title">El Infinito en Borges: Un análisis</div>
+                <div class="entry-tags">
+                    <span class="tag-pill">FILOSOFÍA</span>
+                    <span class="tag-pill">LITERATURA</span>
+                </div>
+                <div class="entry-action">[ >>> ]</div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const input = document.getElementById('searchInput');
+        const list = document.getElementById('articleList');
+        const rows = list.getElementsByClassName('entry-row');
+
+        input.addEventListener('keyup', function() {
+            const filter = input.value.toLowerCase();
+            for (let i = 0; i < rows.length; i++) {
+                const text = rows[i].textContent || rows[i].innerText;
+                if (text.toLowerCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
