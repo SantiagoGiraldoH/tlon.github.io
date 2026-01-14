@@ -1,0 +1,23 @@
+[
+  {
+    "objectID": "prueba_grafica.html",
+    "href": "prueba_grafica.html",
+    "title": "Análisis de Superficies 3D",
+    "section": "",
+    "text": "En este reporte exploramos la visualización de funciones matemáticas complejas. El objetivo es demostrar la capacidad de renderizado de Quarto dentro de la infraestructura del proyecto.\nLa ecuación que vamos a modelar se define como una función de dos variables \\(z = f(x,y)\\), específicamente:\n\\[\nf(x, y) = \\sin(\\sqrt{x^2 + y^2}) \\cdot \\cos(y)\n\\]"
+  },
+  {
+    "objectID": "prueba_grafica.html#introducción-teórica",
+    "href": "prueba_grafica.html#introducción-teórica",
+    "title": "Análisis de Superficies 3D",
+    "section": "",
+    "text": "En este reporte exploramos la visualización de funciones matemáticas complejas. El objetivo es demostrar la capacidad de renderizado de Quarto dentro de la infraestructura del proyecto.\nLa ecuación que vamos a modelar se define como una función de dos variables \\(z = f(x,y)\\), específicamente:\n\\[\nf(x, y) = \\sin(\\sqrt{x^2 + y^2}) \\cdot \\cos(y)\n\\]"
+  },
+  {
+    "objectID": "prueba_grafica.html#generación-de-datos",
+    "href": "prueba_grafica.html#generación-de-datos",
+    "title": "Análisis de Superficies 3D",
+    "section": "2. Generación de Datos",
+    "text": "2. Generación de Datos\nUtilizamos NumPy para crear una malla espacial de coordenadas.\n\n\nCode\nimport numpy as np"
+  }
+]
