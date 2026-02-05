@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Santiago Giraldo H.">
+<meta name="dcterms.date" content="2025-01-11">
+
+<title>Validación de Arquitectura DeepVAR mediante simulación Monte Carlo</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-74d5d52bac67e401e52c2a150a7391b9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="floating quarto-light">
+
+<div id="quarto-search-results"></div>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link active" data-scroll-target="#introducción">1. Introducción</a></li>
+  <li><a href="#metodología" id="toc-metodología" class="nav-link" data-scroll-target="#metodología">2. Metodología</a>
+  <ul class="collapse">
+  <li><a href="#obejtivos" id="toc-obejtivos" class="nav-link" data-scroll-target="#obejtivos">Obejtivos</a></li>
+  <li><a href="#mecanísmo-de-generación-de-datos" id="toc-mecanísmo-de-generación-de-datos" class="nav-link" data-scroll-target="#mecanísmo-de-generación-de-datos">Mecanísmo de generación de datos:</a></li>
+  <li><a href="#escenarios-de-simulación" id="toc-escenarios-de-simulación" class="nav-link" data-scroll-target="#escenarios-de-simulación">Escenarios de simulación</a></li>
+  <li><a href="#implementación" id="toc-implementación" class="nav-link" data-scroll-target="#implementación">Implementación</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Validación de Arquitectura DeepVAR mediante simulación Monte Carlo</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Santiago Giraldo H. </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 11, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">1. Introducción</h2>
+<p>Tomando como punto de partida el modelo DeepTVAR: Deep Learning for Time-Varying Vector Autoregression introducido por Li &amp; Yuan (2024), continuamos con el enfoque de usar redes neuronales recurrentes (RNN) para estimar parámetros estructurales en modelos VAR. Este método demostró ser más eficiente que los métodos bayesianos tradicionales (como el Filtro de Kalman), especialmente al capturar no linealidades complejas en la evolución de los coeficientes sin imponer formas funcionales rígidas a priori.</p>
+<p>Sin embargo, la aplicación directa del DeepTVAR enfrenta una limitación severa en contextos financieros comunes en donde se tienen muchas variables (países, instituciones financieras, asesores comerciales) y datos disponibles limitados (series de tiempo mensuales de 4 o 5 años). Un sistema VAR completo implicaría estimar <span class="math inline">\(N^2\)</span> interacciones dinámicas, una tarea estocásticamente inviable dada la restricción de series de tiempo cortas (<span class="math inline">\(T\)</span> pequeño), lo que llevaría inevitablemente a un sobreajuste masivo y a una nula capacidad de generalización.</p>
+<p>Para resolver este problema de identificación en entornos de “<span class="math inline">\(N\)</span> grande, <span class="math inline">\(T\)</span> pequeño”, integramos la teoría de Efectos Correlacionados Comunes (CCE) de la econometría de paneles dinámicos. Siguiendo los fundamentos establecidos por Pesaran (2006) y extendidos por Chudik y Pesaran (2015), sustituimos la densa matriz de interacciones bilaterales por una aproximación de Campo Medio (Mean Field Approximation). Esta decisión teórica nos permite comprimir la información de la red en un único regresor exógeno: el promedio transversal de los flujos (<span class="math inline">\(\bar{y}_{t-1}^{(-i)}\)</span>). Al asumir que la influencia sistémica se transmite a través de este agregado global, reducimos drásticamente el espacio de parámetros, transformando un problema de alta dimensión en una especificación parsimoniosa que retiene la capacidad de medir la conectividad de la red sin sacrificar grados de libertad.</p>
+<p>Asi, a partir del mecanismo de aprendizaje del DeepTVAR configuramos lo que denominamos una Hypernetwork Recurrente, en lugar de estimar coeficientes estáticos empleamos una Gated Recurrent Unit (GRU) que procesa la historia del sistema para generar dinámicamente el vector de parámetros <span class="math inline">\(\theta_t\)</span> en cada paso de tiempo. Crucialmente, imponemos una restricción de parámetros compartidos durante el entrenamiento, aprovechando la dimensión transversal (<span class="math inline">\(N\)</span>) para compensar la escasez temporal (<span class="math inline">\(T\)</span>). Esta síntesis nos permite obtener un estimador robusto de la conectividad variante en el tiempo (<span class="math inline">\(\beta_{2,t}\)</span>), capaz de adaptarse a choques de mercado exógenos, validado bajo una estructura de error idiosincrático.</p>
+<p>Por último, integramos al modelo un componente exógeno (<span class="math inline">\(z_t\)</span>) diseñado para capturar efectos externos comunes, como choques macroeconómicos. Su inclusión permite distinguir entre verdaderos efectos de contagio y reacciones simultáneas ante el mercado, a la vez que habilita, mediante la variabilidad temporal de su coeficiente, la medición continua de la sensibilidad del sistema frente a factores de estrés externo.</p>
+<p>El modelo resultante tiene la forma:</p>
+<p><span class="math display">\[
+y_{i,t} = \alpha_t + \beta_{1,t} y_{i,t-1} + \beta_{2,t} \bar{y}_{t-1}^{(-i)} + \gamma_t z_t + \varepsilon_{i,t}
+\]</span></p>
+<p>Donde:</p>
+<p><span class="math display">\[
+\bar{y}_{t-1}^{(-i)} = \frac{1}{N-1} \sum_{j \neq i} y_{j,t-1} \quad \text{es la aproximación de Campo Medio.}
+\]</span></p>
+<p><span class="math display">\[
+\theta_t = [\alpha_t, \beta_{1,t}, \beta_{2,t}, \gamma_t] \quad \text{es generado por la GRU.}
+\]</span></p>
+<p>Dada la naturaleza híbrida y novedosa de la arquitectura propuesta, que fusiona restricciones econométricas estructurales con optimización con aprendizaje profundo, nos interesa demostrar que el modelo es capaz de identificar correctamente el Proceso Generador de Datos (DGP) subyacente, garantizando que los parámetros estimados son artefactos genuinos de la dinámica de la red y no producto del sobreajuste o ruido estadístico. Para esto proponemos un estudio de simulación metodológicamente riguroso, que nos permita sustentar y reportar los resultados con transparencia. En este artículo exponemos de forma detallada los racionales del diseño, análisis y ejecución de este estudio, que nos permiten aplicar la presente arquitectura en contextos empíricos con confianza y con un mejor entendimiento e interpretación de los hallazgos posteriores.</p>
+</section>
+<section id="metodología" class="level2">
+<h2 class="anchored" data-anchor-id="metodología">2. Metodología</h2>
+<p>La estrategia de validación se estructura siguiendo el protocolo ADEMP (Aims, Data-generating mechanisms, Estimands, Methods, Performance measures) propuesto por Morris et al.&nbsp;(2019), el cual establece un estándar de rigor para garantizar la neutralidad y reproducibilidad en evaluaciones de métodos estadísticos. Bajo este marco, el objetivo central del estudio trasciende la precisión predictiva de la variable modelada y se enfoca primordialmente en la identificabilidad estructural, es decir, en la capacidad de la arquitectura híbrida para recuperar la trayectoria latente y desconocida de los parámetros variantes en el tiempo (<span class="math inline">\(\theta_t\)</span>) en un entorno de ‘Pequeño <span class="math inline">\(T\)</span>’. Al controlar el Ground Truth mediante un Proceso Generador de Datos (DGP) sintético, podemos evaluar si el mecanismo de aprendizaje de la GRU distingue efectivamente entre la señal estructural y el ruido estocástico, validando la capacidad de inferencia del modelo.</p>
+<p>_Para cuantificar la ventaja comparativa de la arquitectura propuesta, el desempeño se contrasta frente a estimadores econométricos tradicionales que actúan como benchmarks: un modelo de Panel Estático (base de referencia de nulo cambio) y una estimación de Mínimos Cuadrados por Ventana Móvil (Rolling Window OLS), que representa la heurística estándar para capturar dinamismo temporal. Siguiendo la metodología de validación empleada en trabajos recientes sobre Deep Learning aplicado a series temporales económicas (Li &amp; Yuan, 2024), el análisis discrimina entre el poder de ajuste (medido vía RMSE fuera de muestra) y la precisión inferencial (medida vía MAE de los parámetros). Esta doble métrica asegura que el modelo no solo minimice el error de pronóstico, lo cual podría lograrse mediante sobreajuste, sino que capture la dinámica evolutiva de la red y su sensibilidad ante choques exógenos._En revisión</p>
+<section id="obejtivos" class="level3">
+<h3 class="anchored" data-anchor-id="obejtivos">Obejtivos</h3>
+<p>Al diseña un estudio de simulación es fundamental partir de los objetivos que motivan el experimento y las hipótesis que se pretenden comprobar. A continuación presentamos los objetivos, y asi mismo las hipótesis, que van a guiar el diseño de nuestro estudio y que serán comprobadas mediante la experimentación.</p>
+<section id="objetivo-general" class="level4">
+<h4 class="anchored" data-anchor-id="objetivo-general">Objetivo General</h4>
+<p>Demostrar que la arquitectura DeepTVAR basada en GRU puede recuperar dinámicas de parámetros variantes en el tiempo (<span class="math inline">\(\theta_t\)</span>) de manera más precisa que los métodos de estimación independientes, aprovechando la estructura de panel (<span class="math inline">\(N\)</span>) para compensar la escasez de datos temporales (<span class="math inline">\(T\)</span>).</p>
+</section>
+<section id="obejtivos-específicos" class="level4">
+<h4 class="anchored" data-anchor-id="obejtivos-específicos">Obejtivos Específicos</h4>
+<ul>
+<li><p><strong>Validación de la recuperación de parámetros:</strong> Evaluar si el modelo propuesto es capaz de rastrear las trayectorias verdaderas de <span class="math inline">\(\alpha_t, \beta_{1,t}, \beta_{2,t}, \gamma_t\)</span> generadas sintéticamente. Nos interesa particularmente si el modelo captura los puntos de inflexión.</p></li>
+<li><p><strong>Superioridad del modelo en entornos “N Grande, T pequeño”:</strong> Comprobar que nuestra arquitectura tiene un trade-off Sesgo-Varianza superior a los benchmarks.</p></li>
+<li><p><strong>Eficacia de la Aproximación de Campo Medio:</strong> Determinar si el término <span class="math inline">\(\beta_{2,t} \bar{y}_{t-1}^{(-i)}\)</span> captura correctamente la influencia sistémica simulada, distinguiéndola del shock idiosincrático <span class="math inline">\(\varepsilon_{i,t}\)</span>.</p></li>
+</ul>
+</section>
+</section>
+<section id="mecanísmo-de-generación-de-datos" class="level3">
+<h3 class="anchored" data-anchor-id="mecanísmo-de-generación-de-datos">Mecanísmo de generación de datos:</h3>
+<p>Con los objetivos definidos, un investigador debería preguntarse si los datos a usar en el estudio favorecen el método que está intentando probar, esto es, si la reglas del mecanismo de generación de datos (DGM) coinciden exactamente con los supuestos teóricos del método de forma que sea casi inevitable que este funcione bien. Morris et al.&nbsp;(2019), establecen algunas estrategias para evitar el sesgo en los datos generados a partir de un modelo paramétrico conocido, como es nuestro caso:</p>
+<ul>
+<li><strong>Variar los factores del DGM:</strong> En lugar de un solo escenario, se deben variar factores como el tamaño de la muestra, los valores de los parámetros y la complejidad del modelo.</li>
+<li><strong>Escenarios de “estrés” o ruptura:</strong> Una forma de justificar un método es intentar “romperlo” mediante mecanismos de generación de datos poco realistas o extremos para entender cuándo y cómo falla.</li>
+<li><strong>Inclusión de competidores serios:</strong> La justificación también pasa por incluir métodos que sean “contendientes serios” en la literatura, asegurando que no se esté comparando el nuevo método contra versiones débiles o defectuosas de otros.</li>
+</ul>
+<p>Como nuestro objetivo principal es validar la recuperación de parámetros, necesitamos construir trayectorias verdaderas explícitas que nos permita definir la evolución de <span class="math inline">\(\theta_t\)</span> para crear diferentes escenarios de complejidad para el modelo. Asi mismo, para que la dinámica generadora de <span class="math inline">\(\theta_t\)</span> no sea idéntica a la arquitectura de nuestro modelo estimador (GRU), los datos simulados se generan mediante procesos estocásticos clásicos que buscan capturar las dinámicas propias del contexto financiero.</p>
+<p>En el contexto de nuestra ecuación estructural, definimos el vector objetivo en el tiempo <span class="math inline">\(t\)</span> como:</p>
+<p><span class="math display">\[\theta_t = [\alpha_t, \beta_{1,t}, \beta_{2,t}, \gamma_t]^\top\]</span></p>
+<p>Representando cada término:</p>
+<ol type="1">
+<li><span class="math inline">\(\alpha_t\)</span> Corresponde al intercepto.</li>
+<li><span class="math inline">\(\beta_{1,t}\)</span> Parámentro correspondiente al coeficiente autoregresivo.</li>
+<li><span class="math inline">\(\beta_{2,t}\)</span> Parámetro que representa la sensibilidad de la variable <span class="math inline">\(i\)</span> frente al comportamiento promedio del resto del sistema (<span class="math inline">\(\bar{y}_{t-1}^{(-i)}\)</span>). Un aumento en <span class="math inline">\(\beta_{2,t}\)</span> simula episodios de contagio financiero, típicos en crisis sistémicas.</li>
+<li><span class="math inline">\(\gamma_t\)</span>. Captura la exposición cambiante a un factor de riesgo externo <span class="math inline">\(z_t\)</span> .</li>
+</ol>
+<p>Para asegurar que la red GRU identifique correctamente la dinámica y no solo cambios en la varianza, es fundamental incorporar volatilidad estocástica en el término de error <span class="math inline">\(\varepsilon_{i,t}\)</span>, tal como advierte Nakajima. Si se ignora la volatilidad estocástica, la red podría interpretar erróneamente un aumento en la varianza del mercado como un cambio en los coeficientes de transmisión <span class="math inline">\(\beta_{2,t}\)</span> .</p>
+<p>Forbes y Rigobon enfatizan que las crisis financieras se caracterizan por aumentos masivos en la volatilidad. Cuando la volatilidad aumenta, la correlación calculada aumenta mecánicamente, incluso si el vínculo estructural entre los agentes no ha cambiado. Lo que buscamos es que la arquitectura distinga entre la varianza ideosincrásica y la influencia de la red.</p>
+<p>Siguiendo el modelo propuesto por Nakajima, definimos el error como:</p>
+<p><span class="math inline">\(\varepsilon_{i,t} \sim N(0, \sigma_{i,t}^2)\)</span></p>
+<p><span class="math inline">\(\ln(\sigma_{i,t}^2) = \ln(\sigma_{i,t-1}^2)+ \eta_{i,t}\)</span></p>
+<p>Donde <span class="math inline">\(\eta_{i,t} \sim N(0,\sigma_{\eta}^2)\)</span></p>
+<p>Donde la volatilidad logarítmica sigue un paseo aleatorio, garantizando varianzas positivas y permitiendo que el generador de datos simule desplazamientos realistas y persistentes en el riesgo del mercado.</p>
+<p>En coherencia con el contexto en el que se ha desarrollado esta arquitectura, una objetivo fundamental es modelar el comportamiento de la red ante choques en el mercado y en situaciones de estrés financiero, por lo que la variable exógena <span class="math inline">\(z_t\)</span> debe simular periodos de calma y crisis. Siguiendo a Dungey et al.&nbsp;(2005), nuestra variable actúa como un factor de riesgo sistémico que afecta a todos los activos simultáneamente. Su tratamiento no es estático, sino que se diseña específicamente para simular la diferencia entre un mercado en calma y uno en crisis.</p>
+<p><span class="math inline">\(z_t \sim \begin{cases} N(0, 1) &amp; \text{si } t \notin \text{Periodo de Crisis} \\ N(0, \omega^2) &amp; \text{si } t\in \text{Periodo de Crisis} \end{cases}\)</span></p>
+<p>Donde <span class="math inline">\(\omega^2 &gt; 1\)</span> representa el aumento de volatilidad del factor macroeconómico durante el choque.</p>
+</section>
+<section id="escenarios-de-simulación" class="level3">
+<h3 class="anchored" data-anchor-id="escenarios-de-simulación">Escenarios de simulación</h3>
+<p>Demostrar que la arquitectura identifica cómo se comporta la conectividad, inplica generar los parámetros bajo distintos escenarios. Ciccarelli y Rebucci definen el contagio no como una simple correlación alta, sino como un desplazamiento temporal en los vínculos entre agentes tras un choque.</p>
+<p>En ese sentido, proponemos dos escenarios para la evolución de <span class="math inline">\(\theta_t  = [ \alpha_t, \beta_{1,t}, \beta_{2,t}, \gamma_t]\)</span>.</p>
+<p><strong>Escenario A</strong>: Linea base del estudio.</p>
+<p>Definimos un escenario en el que la conectividad de la red es constante o evoluciona lentamente, sin reaccionar a <span class="math inline">\(z_t\)</span>. Con esto queremos probar que la GRU no alucina conectividad extra durante crisis de volatilidad. Este escenario busca cuantificar el sesgo y la tasa de falsos positivos (Error Tipo ), por lo que se somete al modelo a un entorno de alta volatilidad buscando confusión del ruido del mercado con un cambio estructural en la conectividad.</p>
+<p>El parámetro de conectividad <span class="math inline">\(\beta_{2,t}\)</span> se modela, entonces, como una caminata aleatoria independiente del factor de crisis:</p>
+<p><span class="math display">\[
+B_{2,t} = B_{2,t-1} + \mu_t, \quad \mu_t \sim N(0, \Sigma_{\beta})
+\]</span></p>
+<p>Asi mismo se generan los demás parámetros, siguiendo un paseo aleatorio suave, mientras se simula una crisis mediante un quiebre estructural en la varianza de <span class="math inline">\(z_t\)</span>.</p>
+<p><span class="math display">\[
+\theta_{i,t} = \theta_{i,t-1} + \mu_t, \quad \mu_t \sim N(0, \Sigma_{\theta})
+\]</span></p>
+<p>para <span class="math inline">\(\theta_t  = [ \alpha_t, \beta_{1,t}, \gamma_t]\)</span>.</p>
+<p>Nakajima advierte que si se modelan coeficientes variantes en el tiempo asumiendo homocedasticidad, las estimaciones de los coeficientes estarán sesgadas y tenderán a compensar la falta de especificación de la varianza, se hace especilemnte relevante en este punto la volatilidad estocástica definida anteriormente.</p>
+<p>Siguiendo las métricas de desempeño de Morris et al., consideraremos como criterios de éxtio para el modelo bajo este escenario que el valor esperado <span class="math inline">\(E[\hat\beta_{2,t}]\)</span> se mantenga cerca del <span class="math inline">\(\beta_{2,t}\)</span> real, sin mostrar saltos coincidentes con el periodo de alta volatilidad de zt​ y que los intervalos de confianza no excluyan el valor verdadero durante la crisis.</p>
+<p><strong>Escenario B</strong>: Contagio.</p>
+<p>En el segundo escenario evaluamos la sensibilidad del modelo y la capacidad para detectar un cambio en la estructura de conectividad en medio del ruido del mercado. Como se dijo, nos basamos en la definición de contagio expuesta por Forbes y Rigobon, y que define el contagio como un cambio significativo en los vínculos entre mercados tras un choque.</p>
+<p>Por eso introducimos una variable de estado latente determinista <span class="math inline">\(S_t \in [0,1]\)</span> que gobierna tanto la volatilidad del exógeno como la intensidad de la conectividad de la red.</p>
+<p><span class="math inline">\(S_{t} \sim \begin{cases} 1(Crisis) &amp; \text{si }t_{inicial} \leq t \leq t_{final} \\  0 (Calma) &amp; \text{en otro caso } \end{cases}\)</span></p>
+<p>Para modelar “el peor escenario” descrito por Rigobon, el factor exógeno <span class="math inline">\(z_t\)</span> aumenta la volatilidad igual que en el escenario A. Asi, la red debería ser capaz de atribuir parte de la varizanza observada en <span class="math inline">\(y_{i,t}\)</span> al aumento de <span class="math inline">\(z_t\)</span> y otra parte al salto en <span class="math inline">\(B_{2,t}\)</span>. Este aumento en la volatilidad aumenta según la variable de estado latente descrita:</p>
+<p><span class="math inline">\(z_t \sim N(0, \sigma_{z,t}^2) \quad \text{donde} \quad \sigma_{z,t}^2=(1-S_t) * 1+S_t*\omega^2\)</span></p>
+<p>En este escenario, el parámetro de conectividad experimenta un desplazamiento estructural positvivo durante el régimen de crisis:</p>
+<p><span class="math display">\[
+\beta_{2,t}= \beta_{base} + \delta_{contagio}*S_t
+\]</span></p>
+<p>Donde <span class="math inline">\(\delta_{contagio}\)</span> representa la magnitud del contagio y ocurre solo si el vínculo estructural cambia significativamente durante la crisis. Y <span class="math inline">\(\beta_{base}\)</span> tiene el comportamiento de caminata aleatoria definido para el escenario A.</p>
+<p>Fundamentalmente lo que estamos buscando simular es un aumento real en el contagio de la red, al contrario que una simple interdependencia guiada por el aumento de la volatilidad, tal como lo describen Forbes y Rigobon. Si <span class="math inline">\(\delta_{contagio} \neq 0\)</span> entendemos que existe un incremento significativo en los vínculos después de un choque (Escenario B). Y si <span class="math inline">\(\delta_{contagio} = 0\)</span>, es decir, <span class="math inline">\(\beta_{2,t} =\beta_{base}\)</span> durante la crisis, lo que existe es interdependencia y no contagio (Escenario A).</p>
+<p>Para aislar el efecto de conectividad, los otros parámetros mantienen su comportamiento de paseo aleatorio suave, como en el Escenario A. Es importante notar que se asume que el parámetro <span class="math inline">\(\gamma_t\)</span> se mantiene estable a pesar del aumento en la volatilidad de <span class="math inline">\(z_t\)</span>, esta desición metodológica permite identificar específicamente si el modelo detecta un cambio en la estructura de la red sin problemas de identificación, aunque en la realidad esta característica del escenario sea poco probable.</p>
+<p>El criterio de éxito para este escenario consiste en detectar un perfil de escalón en la serie recuperada de <span class="math inline">\(\hat\beta_{2,t}\)</span> que coincida temporalmente con el periodo de crisis, sin confundir el aumento de la varianza del error estocástico con el cambio en <span class="math inline">\(\beta_{2,t}\)</span>.</p>
+</section>
+<section id="implementación" class="level3">
+<h3 class="anchored" data-anchor-id="implementación">Implementación</h3>
+<section id="generar-los-datos" class="level4">
+<h4 class="anchored" data-anchor-id="generar-los-datos">Generar los datos</h4>
+<p>Para generar lo datos en pytohn usaremos la librería PyTorch de forma que generemos tensores compatibles con la red neuronal recurrente del modelo y que sean escalables.</p>
+<p>La generación de los datos la separamos en 3 etapas: Configuración del experimento, desarrollo de la clase DataGenerator y visualización de diagnóstico.</p>
+<p><strong>Configuración del experimento:</strong> Siguiendo los escenarios propuestos, configuramos los hiperparámetros del experimento en una clase de configuración:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># semilla para reproducibilidad</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">42</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SimConfig:</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">    Contenedor de hiperparámetros</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Dimensiones del Panel</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.N <span class="op">=</span> <span class="dv">200</span>          <span class="co"># Número de activos (Large N)</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.T_obs <span class="op">=</span> <span class="dv">48</span>       <span class="co"># Ventana observable (Small T)</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.burn_in <span class="op">=</span> <span class="dv">52</span>     <span class="co"># Periodo de calentamiento</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.T_total <span class="op">=</span> <span class="va">self</span>.T_obs <span class="op">+</span> <span class="va">self</span>.burn_in</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Definición de la Crisis (Variable de Estado S_t)</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># La crisis ocurrirá en la mitad de la muestra observable</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.crisis_start <span class="op">=</span> <span class="va">self</span>.burn_in <span class="op">+</span> <span class="dv">20</span> </span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.crisis_end <span class="op">=</span> <span class="va">self</span>.burn_in <span class="op">+</span> <span class="dv">30</span>   </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Parámetros iniciales</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.beta1_base <span class="op">=</span> <span class="fl">0.4</span>      </span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.gamma_base <span class="op">=</span> <span class="fl">0.5</span>      </span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.alpha_base <span class="op">=</span> <span class="fl">0.01</span>     </span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.beta2_base <span class="op">=</span> <span class="fl">0.2</span>       </span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.delta_contagio <span class="op">=</span> <span class="fl">0.4</span>  </span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.omega <span class="op">=</span> <span class="fl">5.0</span>           </span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Ruido de los parámetros (Random Walk variance)</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sigma_eta <span class="op">=</span> <span class="fl">0.02</span>      <span class="co"># Volatilidad para alpha, beta, gamma</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> SimConfig()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Es importante notar los valores iniciales arbitrarios elegidos para los parámetros: <span class="math inline">\(\beta_{1}, \beta_2, \gamma, \alpha, \delta_{contagio}, \omega\)</span>. Aunque es difícil encontrar literatura en el contexto exacto de nuestros datos, la arquitectura que porponemos debería ser generalizable. Por esto, es importante en este punto hablar sobre los supuestos estadísticos del modelo.</p>
+<p>El uso de una hypernetwork basada en GRU en lugar de un estimador clásico nos permite la estimación de los parámetros sin imponer restricciones tan rígidas sobre la estructura de los datos. Supuestos de hocedasticidad local o invarianza estructural, necesarios en métodos como OLS y Panel VAR estático, serían muy problemáticos dados los objetivos de nuestro estudio y la estructura de los datos en nuestro contexto.</p>
+<p>Los supuestos que si son necesarios para nuestro modelo y que garantizan identifciación y aprendizaje, son:</p>
+<ul>
+<li><p>Se asume que la dinámica generadora de los datos es, al menos localmente lineal. Aunque los parámetros varían en el tiempo, en el instante infinitesimal <span class="math inline">\(t\)</span>, la relación entre <span class="math inline">\(y_{i,t}\)</span> y sus regresores es lineal.</p></li>
+<li><p>Asumimos la validez de la Aproximación de Campo Medio. Cuando <span class="math inline">\(N \to \infty\)</span>, las interacciones individuales de pares (<span class="math inline">\(j \to i\)</span>) se promedian y pueden resumirse suficientemente mediante el término <span class="math inline">\(\bar{y}_{t-1}^{(-i)}\)</span>. Para esto, Los residuos idiosincráticos deben tener esperanza cero en el corte transversal (<span class="math inline">\(\mathbb{E}[\varepsilon_{i,t}]_N \approx 0\)</span>).</p></li>
+<li><p>Asumimos ortogonalidad condicional de los errores. El error remanente no contiene información predictiva sobre el futuro.</p></li>
+</ul>
+<p><span class="math display">\[
+\mathbb{E}[\varepsilon_{i,t} | y_{i,1:t-1}, z_{1:t}] = 0
+\]</span></p>
+<ul>
+<li><p>Se asume separabilidad de la varianza y coeficientes. Existe suficiente variabilidad independiente en los regresores para distinguir un cambio en <span class="math inline">\(\beta\)</span> de un cambio en la varianza de <span class="math inline">\(\varepsilon\)</span>, como se intenta probar en el escenario B.</p></li>
+<li><p>Estacionariedad Local: Para que el proceso generador de datos sea físicamente posible y computacionalmente tratable mediante redes neuronales, se debe cumplir la condición de que el proceso autorregresivo debe ser estable en un instante de tiempo arbitrario <span class="math inline">\(\tau\)</span>. Es decir, que las raíces del polinomio característico del sistema deben permanecer dentro (o en la frontera) del círculo unitario. En este sentido, se busca que la suma de los coeficientes de persistencia no supere la unidad (Generar anexo con prueba?).</p></li>
+</ul>
+<p>Bajo estos supuestos se establecen los parámetros iniciales del estudio. Empezando por <span class="math inline">\(\beta_{1,t} = 0.4\)</span>, este parámetro representa la memoria inercial propia del activo, por lo que debe dejar espacio a choques de conectividad que no hagan explotar el sistema.</p>
+<p>El parámetros de interdependencia <span class="math inline">\(\beta_{2,t}=0.2\)</span> que mide la conectividad en tiempos de calma, se establece garantizando que exista esatibilidad en el escenario A y cualquier volatilidad provenga puramente de los choques <span class="math inline">\(\varepsilon\)</span> y <span class="math inline">\(z\)</span>, no de la dinámica inestable.</p>
+<p>Para el parámetro de intensidad de contagio se fijó en <span class="math inline">\(\delta_{contagio}=0.4\)</span>, simulando un incremento abrupto de la conectividad sistémica, en este escenario <span class="math inline">\(\beta_{2,t}=0.6\)</span> llevando el sistema a comportarse impredeciblemente pero sin explotar exponencialmente.</p>
+<p>Elegimos una tendencia ligeramente positiva para el valor inicial de <span class="math inline">\(\alpha = 0.01\)</span> y un valor moderado para el riesgo global <span class="math inline">\(\gamma = 0.5\)</span>.</p>
+<p>El multiplicador de volatilidad <span class="math inline">\(\omega = 5\)</span>, implica que la varianza salta por un factor de <span class="math inline">\(\omega^2 = 25\)</span>. Este salto masivo es necesario para satisfacer la condición de identificación en una muestra corta.</p>
+<p><strong>Calse DataGenerator:</strong></p>
+<p>Creamos la clase de generación de datos y sus métodos:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> TVPDataGenerator:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, config):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cfg <span class="op">=</span> config</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _random_walk(<span class="va">self</span>, start_val, size, noise_std):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Genera una caminata aleatoria básica: x_t = x_{t-1} + noise"""</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        noise <span class="op">=</span> torch.randn(size) <span class="op">*</span> noise_std</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        rw <span class="op">=</span> torch.cumsum(noise, dim<span class="op">=</span><span class="dv">0</span>) <span class="op">+</span> start_val</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> rw</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Implementamos la volatilidad estocástica generando una caminata aleatoria para la para la log-varianza.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _generate_stochastic_volatility(<span class="va">self</span>, size_t, size_n):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">        Genera la volatilidad idiosincrática sigma_{i,t}^2.</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">        ln(sigma^2) sigue un Random Walk (Nakajima).</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Volatilidad logarítmica inicial aleatoria</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        h <span class="op">=</span> torch.zeros(size_t, size_n) <span class="co"># Horizonte temporal t y número de activos N</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        h[<span class="dv">0</span>, :] <span class="op">=</span> torch.randn(size_n) <span class="op">*</span> <span class="fl">0.1</span> <span class="co"># cada activo comienza con desv estandar inicial de 0.5 </span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Evolución: h_t = h_{t-1} + error</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, size_t):</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>            h[t, :] <span class="op">=</span> h[t<span class="op">-</span><span class="dv">1</span>, :] <span class="op">+</span> torch.randn(size_n) <span class="op">*</span> <span class="fl">0.1</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> torch.exp(h) <span class="co"># Retornamos la varianza (sigma^2)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Se implementa el método para el factor exógeno <span class="math inline">\(z_t\)</span>, cuya volatilidad depende del régimen según la variable de estado <span class="math inline">\(S_t\)</span> en el tiempo definido en configuración.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> generate_exo_z(<span class="va">self</span>):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>            <span class="co">"""</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">            Genera z_t con heterocedasticidad condicional al régimen.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">            z_t ~ N(0, (1-S)*1 + S*omega^2)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">            """</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>            T <span class="op">=</span> <span class="va">self</span>.cfg.T_total</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            z <span class="op">=</span> torch.zeros(T)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.is_crisis <span class="op">=</span> torch.zeros(T, dtype<span class="op">=</span>torch.<span class="bu">bool</span>) <span class="co"># Máscara S_t</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(T):</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Determinar estado S_t</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="va">self</span>.cfg.crisis_start <span class="op">&lt;=</span> t <span class="op">&lt;=</span> <span class="va">self</span>.cfg.crisis_end:</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                    <span class="va">self</span>.is_crisis[t] <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                    std <span class="op">=</span> <span class="va">self</span>.cfg.omega <span class="co"># Alta volatilidad</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>                <span class="cf">else</span>:</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                    <span class="va">self</span>.is_crisis[t] <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                    std <span class="op">=</span> <span class="fl">1.0</span>            <span class="co"># Volatilidad normal</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                z[t] <span class="op">=</span> torch.randn(<span class="dv">1</span>) <span class="op">*</span> std</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> z</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Generamos las caminatas aleatorias para <span class="math inline">\(\theta_t = [\alpha, \beta_1, \gamma]\)</span> y configuramos los valores de <span class="math inline">\({\beta_2,t}\)</span> según los escenarios de interdependencia y crisis.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> generate_params(<span class="va">self</span>, scenario<span class="op">=</span><span class="st">'A'</span>):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">        Genera las trayectorias de theta_t = [alpha, beta1, beta2, gamma].</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        T <span class="op">=</span> <span class="va">self</span>.cfg.T_total</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>       <span class="co"># Parámetros (RW suave)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># alpha: oscila cerca de 0</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        alpha <span class="op">=</span> <span class="va">self</span>._random_walk(start_val<span class="op">=</span><span class="va">self</span>.cfg.alpha_base, size<span class="op">=</span>T, noise_std<span class="op">=</span><span class="va">self</span>.cfg.sigma_eta)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Beta1: oscila cerca de 0.4</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        beta1 <span class="op">=</span> <span class="va">self</span>._random_walk(start_val<span class="op">=</span><span class="va">self</span>.cfg.beta1_base, size<span class="op">=</span>T, noise_std<span class="op">=</span><span class="va">self</span>.cfg.sigma_eta)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Gamma: Sensibilidad a z_t, oscila cerca de 0.5</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        gamma <span class="op">=</span> <span class="va">self</span>._random_walk(start_val<span class="op">=</span><span class="va">self</span>.cfg.gamma_base, size<span class="op">=</span>T, noise_std<span class="op">=</span><span class="va">self</span>.cfg.sigma_eta)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Beta2: Conectividad</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Interdependencia</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        beta2_trend <span class="op">=</span> <span class="va">self</span>._random_walk(start_val<span class="op">=</span><span class="va">self</span>.cfg.beta2_base, size<span class="op">=</span>T, noise_std<span class="op">=</span><span class="va">self</span>.cfg.sigma_eta)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        beta2 <span class="op">=</span> beta2_trend.clone()</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> scenario <span class="op">==</span> <span class="st">'B'</span>:</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Escenario B: Sumar el salto delta * S_t</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Usar la máscara de crisis generada en generate_exo_z</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>            crisis_mask <span class="op">=</span> torch.zeros(T)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>            crisis_mask[<span class="va">self</span>.cfg.crisis_start : <span class="va">self</span>.cfg.crisis_end <span class="op">+</span> <span class="dv">1</span>] <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>            <span class="co"># beta2 = base + delta * S_t</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>            beta2 <span class="op">=</span> beta2 <span class="op">+</span> (<span class="va">self</span>.cfg.delta_contagio <span class="op">*</span> crisis_mask)</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> alpha, beta1, beta2, gamma</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Por último, generamos la función de simulación completa:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> simulate(<span class="va">self</span>, scenario<span class="op">=</span><span class="st">'A'</span>):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>       </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        T <span class="op">=</span> <span class="va">self</span>.cfg.T_total</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        N <span class="op">=</span> <span class="va">self</span>.cfg.N</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Generar Factores Exógenos y Parámetros</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        z <span class="op">=</span> <span class="va">self</span>.generate_exo_z()</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        alpha, beta1, beta2, gamma <span class="op">=</span> <span class="va">self</span>.generate_params(scenario)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Generar Volatilidad Estocástica</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        sigma_sq <span class="op">=</span> <span class="va">self</span>._generate_stochastic_volatility(T, N)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Inicializar Panel Y</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> torch.zeros(T, N)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Ecuación Estructural</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        <span class="co"># y_{i,t} = alpha_t + beta1_t * y_{i,t-1} + beta2_t * MeanField_{t-1} + gamma_t * z_t + eps</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, T):</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Calcular Mean Field del paso anterior: mean(y_{t-1})</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Nota: Excluimos i en la teoría (-i), pero con N=200, mean(all) approx mean(-i)</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Esto optimiza vectorización.</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>            mean_field_prev <span class="op">=</span> y[t<span class="op">-</span><span class="dv">1</span>].mean() </span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Generar error idiosincrático epsilon ~ N(0, sigma_i,t^2)</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>            eps <span class="op">=</span> torch.randn(N) <span class="op">*</span> torch.sqrt(sigma_sq[t])</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Ecuación Vectorizada (para todo N a la vez)</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>            y[t] <span class="op">=</span> (alpha[t] </span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>                    <span class="op">+</span> beta1[t] <span class="op">*</span> y[t<span class="op">-</span><span class="dv">1</span>] </span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>                    <span class="op">+</span> beta2[t] <span class="op">*</span> mean_field_prev </span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>                    <span class="op">+</span> gamma[t] <span class="op">*</span> z[t] </span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>                    <span class="op">+</span> eps)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Cortar Burn-in</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>        start <span class="op">=</span> <span class="va">self</span>.cfg.burn_in</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>            <span class="st">'y'</span>: y[start:],               <span class="co"># Panel (T_obs, N)</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>            <span class="st">'z'</span>: z[start:],               <span class="co"># Exógena (T_obs)</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>            <span class="st">'theta'</span>: torch.stack([alpha, beta1, beta2, gamma], dim<span class="op">=</span><span class="dv">1</span>)[start:], <span class="co"># Parámetros Verdaderos</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>            <span class="st">'is_crisis'</span>: <span class="va">self</span>.is_crisis[start:]</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>        }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Diagnóstico de visualización:</strong></p>
+<div id="fig-datasimulada" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-datasimulada-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="img/Simul_data.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-datasimulada-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1
+</figcaption>
+</figure>
+</div>
+<p>Como se puede ver en la <a href="#fig-datasimulada" class="quarto-xref">Figure&nbsp;1</a>, el parámetro de conectividad <span class="math inline">\(\beta_{2,t}\)</span> en el escenario B sufre un aumento estructural durante el periodo de crisis mientras que el factor exógeno aumenta su volatilidad. Ante este escenario la variable respuesta responde de la manera supuesta, aumentando la volatilidad durante el periodo de contagio con tendencia negativa.</p>
+<p>Si comparamos esta útilma gráfica con un ejemplo de los datos reales en nuestro contexto <a href="#fig-datasimulada" class="quarto-xref">Figure&nbsp;1</a>, podemos observar consistencia con los datos simulados. Aunque claramente la realidad es mas ruidosa en general, se pueden observar periodos de crisis que aumentan la volatilidad y generan una tendencia negativa, periodos como estos son precisamente los que se quieren estudiar.</p>
+<div id="fig-datareal" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-datareal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="img/Real_data.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-datareal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2
+</figcaption>
+</figure>
+</div>
+<p>Bajo este diagnóstico visual de los datos simulados, podemos concluir que la generación de datos es correcta, teniendo en cuenta los escenarios planteados, los obejtivos del estudio de simulación y el contexto bajo el cuál se propone este modelo.</p>
+</section>
+<section id="especificación-de-la-arquitectura-deeptvar" class="level4">
+<h4 class="anchored" data-anchor-id="especificación-de-la-arquitectura-deeptvar">Especificación de la arquitectura DeepTVAR</h4>
+<p>Es el momento de espécificar la arquitectura de la Hiperred (Hypernetwork), la red neuronal diseñada para estimar los coeficientes estructurales del modelo econométrico predefinido. Siguiendo la aproxiamción de Li &amp; Yuan, esta red recurrente se emplea para capturar la dinámica de los parámetros variantes en el tiempo bajo condiciones de heterocedasticidad y cambios estructurales abruptos.</p>
+<p>Dado el panel de datos financieros <span class="math inline">\(N x T\)</span>, definimos el vector de informaicón disponible para el individuo <span class="math inline">\(i\)</span> en el tiempo <span class="math inline">\(t\)</span> como <span class="math inline">\(x_{i,t} = [y_{i,t-1},\bar{y}_{t-1},z_t]^\top\)</span>.</p>
+<p>Para capturar las dependencias temporales no lineales y la memoria del sistema usamos una Gated Recurrent Unit (GRU). A diferencia de las redes recurrentes simples (RNN), la GRU mitiga el problema del desvanecimiento del gradiente, permitiendo aprender dependencias de largo plazo esenciales para distinguir entre ruido transitorio y cambios estructurales.</p>
+<p>La dinámica del estado oculto <span class="math inline">\({h}_{i,t} \in \mathbb{R}^{d_h}\)</span> se actualiza recursivamente:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathbf{r}_t &amp;= \sigma(\mathbf{W}_r \mathbf{x}_{i,t} + \mathbf{U}_r \mathbf{h}_{i,t-1} + \mathbf{b}_r) \\
+\mathbf{u}_t &amp;= \sigma(\mathbf{W}_u \mathbf{x}_{i,t} + \mathbf{U}_u \mathbf{h}_{i,t-1} + \mathbf{b}_u) \\
+\tilde{\mathbf{h}}_t &amp;= \tanh(\mathbf{W}_h \mathbf{x}_{i,t} + \mathbf{U}_h (\mathbf{r}_t \odot \mathbf{h}_{i,t-1}) + \mathbf{b}_h) \\
+\mathbf{h}_{i,t} &amp;= (1 - \mathbf{u}_t) \odot \mathbf{h}_{i,t-1} + \mathbf{u}_t \odot \tilde{\mathbf{h}}_t
+\end{aligned}
+\]</span></p>
+<p>Donde <span class="math inline">\(\mathbf{r}_t\)</span> y <span class="math inline">\(\mathbf{u}_t\)</span> son las compuertas de reinicio y actualización respectivamente, y <span class="math inline">\(\odot\)</span> denota el producto de Hadamard. El vector <span class="math inline">\(\mathbf{h}_{i,t}\)</span> constituye una representación latente comprimida de la trayectoria histórica de la serie y del factor exógeno hasta el momento <span class="math inline">\(t\)</span>.</p>
+<p><span class="math inline">\(\mathbf{h}_{i,t}\)</span> se proyecta hacia el espacio de los parámetros estructurales <span class="math inline">\(\Theta\)</span>, por medio de una función de mapeo <span class="math inline">\(\mathcal{F}_{\phi}: \mathbb{R}^{d_h} \rightarrow \mathbb{R}^{K}\)</span>, donde <span class="math inline">\(K=4\)</span> es el número de coeficientes a estimar. Esta proyección se realiza mediante una capa lineal: <span class="math display">\[
+\hat{\mathbf{\theta}}_{i,t} = \mathbf{W}_\theta \mathbf{h}_{i,t} + \mathbf{b}_\theta
+\]</span></p>
+<p>El vector resultante <span class="math inline">\(\hat{\mathbf{\theta}}_{i,t} = [\hat{\alpha}_t, \hat{\beta}_{1,t}, \hat{\beta}_{2,t}, \hat{\gamma}_t]^\top\)</span> representa la estimación de los coeficientes variantes en el tiempo condicionales a la historia observada.</p>
+<p>Finalmente, para garantizar la consistencia con el Mecanismo Generador de Datos (DGP), la predicción final <span class="math inline">\(\hat{y}_{i,t}\)</span> se obtiene mediante la operación que impone la estructura lineal del modelo:</p>
+<p><span class="math display">\[
+\hat{y}_{i,t} = \hat{\alpha}_t + \hat{\beta}_{1,t} y_{i,t-1} + \hat{\beta}_{2,t} \bar{y}_{t-1} + \hat{\gamma}_t z_t
+\]</span></p>
+<p>Respecto a la selección hiperparámetros, la dimensión del estado oculto de la GRU se fijó en <span class="math inline">\(d_h=64\)</span>. Para la optimización, se empleó un batch size de 32 individuos, lo que permite estimar gradientes estocásticos con suficiente varianza para escapar de óptimos locales sin sacrificar la estabilidad de la convergencia en el panel. Por último, se usó una inicialización de pesos con Xavier Normal para garantizar que la varianza de las señales se mantuviera estable a través de las capas recurrentes y la hiperred.</p>
+<p><strong>Función de pérdida y estimación:</strong> Aunque los parámetros verdaderos <span class="math inline">\(\theta_t\)</span> son latentes y desconocidos, observamos la realización <span class="math inline">\(y_{i,t}\)</span>. La red aprende optimizando la capacidad de reconstruir <span class="math inline">\(y_{i,t}\)</span> basándose en los parámetros generados. La función de pérdida objetiva es el Error Cuadrático Medio (MSE) sobre el panel completo: <span class="math display">\[
+\mathcal{L}(\phi) = \frac{1}{N \times T} \sum_{i=1}^{N} \sum_{t=1}^{T} \left( y_{i,t} - \left( \hat{\alpha}_t + \hat{\beta}_{1,t} y_{i,t-1} + \hat{\beta}_{2,t} \bar{y}_{t-1} + \hat{\gamma}_t z_t \right) \right)^2
+\]</span></p>
+<p>Al minimizar <span class="math inline">\(\mathcal{L}\)</span>, la red neuronal ajusta los pesos de la GRU y de la Hiperred para encontrar la trayectoria de coeficientes <span class="math inline">\(\hat{\mathbf{\theta}}_{t}\)</span> que mejor explica los datos observados, logrando así recuperar la dinámica oculta del contagio financiero.</p>
+</section>
+<section id="entrenamiento" class="level4">
+<h4 class="anchored" data-anchor-id="entrenamiento">Entrenamiento</h4>
+<p>Diseñamos el proceso de entrenamiento autosupervisado, optimizando el modelo sobre el panel completo de datos (N = 200) de manera conjunta. La función de costo se definió como el Error Cuadrático Medio (MSE) de la reconstrucción de la variable objetivo (<span class="math inline">\(\hat{y}_{i,t}\)</span>), utilizando la capacidad predictiva del modelo para validar la inferencia estructural. La optimización de los pesos la realizamos mediante el algoritmo Adam (tasa de aprendizaje <span class="math inline">\(\eta=10^{-3}\)</span>), seleccionado por su capacidad de adaptación en superficies de error no estacionarias. Adicionalmente, para garantizar la estabilidad numérica frente a la severa heterocedasticidad introducida en el factor de riesgo (<span class="math inline">\(z_t\)</span>), implementamos un mecanismo de recorte de gradientes (gradient clipping) con norma máxima unitaria, neutralizando el riesgo de explosión de gradientes inherente al entrenamiento de redes recurrentes (GRU) en periodos de volatilidad financiera extrema.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">## ENTRENAMIENTO </span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Configuración</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> torch.device(<span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> DeepTVAR(input_dim<span class="op">=</span><span class="dv">3</span>, hidden_dim<span class="op">=</span><span class="dv">64</span>, num_params<span class="op">=</span><span class="dv">4</span>).to(device)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>criterion <span class="op">=</span> nn.MSELoss() <span class="co"># Loss Function</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">0.001</span>) <span class="co"># Adam suele funcionar mejor que SGD en RNNs</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>EPOCHS <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Iniciando entrenamiento en: </span><span class="sc">{</span>device<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">30</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>loss_history <span class="op">=</span> []</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(EPOCHS):</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    model.train()</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    epoch_loss <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> batch_x, batch_y <span class="kw">in</span> loader_A:</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        batch_x, batch_y <span class="op">=</span> batch_x.to(device), batch_y.to(device)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Forward Pass</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># La red genera y_hat y los params internos</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        y_pred, params_estimated <span class="op">=</span> model(batch_x)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Calcular Loss (Self-Supervised)</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Minimizamos el error de reconstrucción de y_t</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> criterion(y_pred, batch_y)</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Backward Pass</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>        optimizer.zero_grad()</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>        loss.backward()</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Gradient Clipping, para evitar explosión de gradientes</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>        optimizer.step()</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>        epoch_loss <span class="op">+=</span> loss.item()</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    avg_loss <span class="op">=</span> epoch_loss <span class="op">/</span> <span class="bu">len</span>(loader_A)</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>    loss_history.append(avg_loss)</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (epoch <span class="op">+</span> <span class="dv">1</span>) <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Epoch [</span><span class="sc">{</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>EPOCHS<span class="sc">}</span><span class="ss">] | MSE Loss: </span><span class="sc">{</span>avg_loss<span class="sc">:.6f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="resultados" class="level4">
+<h4 class="anchored" data-anchor-id="resultados">Resultados</h4>
+<p>En la curva de aprendizaje del modelo (<strong>?@fig-fig-curvaapr</strong>) durante 100 épocas, se observa una disminución rápida del error en las primeras 20 épocas, logrando la convergencia alrededor de la época 60, llegando a un MSE final de 1.36.</p>
+<div id="fig-curvaapr" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-curvaapr-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="img/train.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-curvaapr-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3
+</figcaption>
+</figure>
+</div>
+<p>Para la evaluación se simularon dos series de datos diferente a las series de entrenamiento bajo el mismo mecanismo de generación (escenario A y escenario B) y se evaluaron en el modelo entrenado. Más allá de la capacidad de predicción, queremos revisar la capacidad del modelo para recuperar los parámetros de conectividad del modelo, por lo que graficamos la series de parámetros reales (Ground truth) contra la serie de parámetros estimados.</p>
+<p>Empezando por el parámetro <span class="math inline">\(B_{2,t}\)</span>. En el escenario A se observa que el modelo captura relativamente la dinámica no lineal y la tendencia del parámetro a lo largo del tiempo <a href="#fig-EAB2" class="quarto-xref">Figure&nbsp;4</a>, identificando correctamente los regímenes de alza y baja estructural. La mediana estimada (línea azul) presenta una alta correlación con la trayectoria real (línea roja discontinua). Sin embargo, el modelo tiende a sobreestimar la intensidad del coeficiente. Sin embargo para el escenario A, donde el modelo está sometido a un choque de volatilidad en la variable exógena, el modelo sigue bien la dinámica del parámetro real.</p>
+<div id="fig-EAB2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-EAB2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="img/EscenarioAB2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-EAB2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4
+</figcaption>
+</figure>
+</div>
+<p>En el escenario B, el parámetro <span class="math inline">\(B_{2,t}\)</span> identifica de forma correcta el momento del choque de contagio y aumenta la volatilidad y magnitud del parámetro <a href="#fig-EBB2" class="quarto-xref">Figure&nbsp;6</a>. Sin emabrgo, no es completamente satisfactoria la recuperación de los parámetros y aprece que l modelo tiene a confundir en la causa real de la volatilidad.</p>
+<div id="fig-EBB2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-EBB2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="img/EscenarioBB2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-EBB2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5
+</figcaption>
+</figure>
+</div>
+<p>Por esta razón, revisamso los residuales. Si el modelo identifica correctamente las causas de la volatilidad, los residuales deberían ser un ruido blanco y no sufrir de autocorrelación.</p>
+<div id="fig-EBB2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-EBB2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="img/residuales.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-EBB2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6
+</figcaption>
+</figure>
+</div>
+<p>El diagnóstico sobre los residuales es contundente. Existe autocorrelación persistente, por lo que podemos afirmar que la red GRU no ha capturado completamente la dinámica de los datos.</p>
+</section>
+<section id="conclusiones" class="level4">
+<h4 class="anchored" data-anchor-id="conclusiones">Conclusiones</h4>
+<p>Esta primera fase experimental evidenció un desafío grande de identificación, al incluir explícitamente el factor de riesgo exógeno (<span class="math inline">\(z_t\)</span>) con alta volatilidad, la red neuronal tendía a asignar la carga explicativa a la sensibilidad exógena (<span class="math inline">\(\gamma_t\)</span>) y al subestimar el componente de contagio endógeno (<span class="math inline">\(\beta_{2,t}\)</span>) debido a la competencia de gradientes durante la optimización.</p>
+<p>Para aislar la capacidad del modelo de detectar contagio puro y alinear la metodología con los modelos de factores no observados (como Pesaran CCE), proponemos una segunda arquitectura experimental. En esta iteración, <span class="math inline">\(z_t\)</span> se mantiene en el Proceso Generador de Datos (DGP) como causante latente, pero se oculta al estimador DeepTVAR. El objetivo es evaluar si la arquitectura recurrente (GRU) es capaz de inferir el estado de crisis latente y ajustar los parámetros de interdependencia únicamente a partir de la dinámica histórica de los activos. Adicionalmente, se expande la estructura autoregresiva a <span class="math inline">\(AR(3)\)</span> para capturar la persistencia de los shocks y mitigar la autocorrelación residual derivada de la omisión del factor exógeno.</p>
+<p>El desarrollo de esta porpuesta será materia se un estudio posterior.</p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
